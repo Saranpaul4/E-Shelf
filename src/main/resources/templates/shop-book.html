@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — ' + ${book.title})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('shop')}"></header>
+
+<main>
+    <div th:replace="~{fragments/layout :: banners}"></div>
+
+    <section class="card detail-card">
+        <div class="card-head">
+            <h3 th:text="${book.title}">Clean Code</h3>
+            <a class="btn btn-ghost" th:href="@{/shop}">Back to shop</a>
+        </div>
+
+        <div class="detail-top">
+            <div class="detail-cover">
+                <span class="cover-letter" th:text="${#strings.toUpperCase(#strings.substring(book.title, 0, 1))}">C</span>
+                <img class="cover-image" th:if="${book.hasCover}" th:src="${book.coverLarge}"
+                     th:alt="|Cover of ${book.title}|" loading="lazy" onerror="this.remove()">
+            </div>
+            <div>
+                <p class="detail-blurb" th:text="|${book.author} &middot; ${book.publishedYear}|">Robert C. Martin &middot; 2008</p>
+                <p class="detail-blurb" th:if="${!#strings.isEmpty(book.isbn)}"
+                   th:text="|ISBN ${book.isbn}|">ISBN 978-0132350884</p>
+                <p><a class="filter" th:href="@{/shop(genre=${book.genre.slug})}"
+                      th:text="${book.genre.label}">Comics</a></p>
+            </div>
+        </div>
+
+        <dl class="detail-list">
+            <div><dt>Author</dt><dd th:text="${book.author}">Robert C. Martin</dd></div>
+            <div><dt>ISBN</dt><dd th:text="${book.isbn}">978-0132350884</dd></div>
+            <div><dt>Published</dt><dd th:text="${book.publishedYear}">2008</dd></div>
+            <div><dt>Language</dt><dd th:text="${book.language}">English</dd></div>
+            <div th:if="${editions.multilingual}">
+                <dt>Editions stocked</dt>
+                <dd>
+                    <span class="multi-tag" th:text="|${editions.languageCount()} languages|">2 languages</span>
+                    <a class="link" th:href="@{/shop(by='language')}">Browse by language</a>
+                </dd>
+            </div>
+            <div><dt>Buy price</dt><dd class="cell-price"
+                    th:text="|$${#numbers.formatDecimal(book.price, 1, 'COMMA', 2, 'POINT')}|">$44.99</dd></div>
+            <div><dt>Rent price</dt><dd class="cell-price"
+                    th:text="|$${#numbers.formatDecimal(book.rentalPrice, 1, 'COMMA', 2, 'POINT')} for 14 days|">$6.99 for 14 days</dd></div>
+            <div>
+                <dt>Availability</dt>
+                <dd>
+                    <span class="badge"
+                          th:classappend="${book.inStock} ? 'badge-ok' : 'badge-out'"
+                          th:text="${book.inStock} ? |${book.stockQuantity} copy/copies ready| : 'Sold out'"></span>
+                </dd>
+            </div>
+        </dl>
+
+        <!-- The blurb an admin writes on the book form. Shown here and in the Buy popup. -->
+        <div class="book-summary">
+            <h4>About this book</h4>
+            <p th:if="${!#strings.isEmpty(book.summary)}" th:text="${book.summary}">A blurb.</p>
+            <p class="empty-line" th:unless="${!#strings.isEmpty(book.summary)}">
+                No summary added yet — check back once a librarian has written one.
+            </p>
+        </div>
+
+        <p class="alert alert-ok" th:if="${rentedAlready}">
+            You are already renting this book — return it before renting it again.
+        </p>
+
+        <!-- Same story, different language. Stocked as separate books, sold from here. -->
+        <section class="editions" th:if="${editions.multilingual}">
+            <div class="section-head">
+                <h4 th:text="|Also available in ${editions.otherLanguages()}|">Also available in French</h4>
+                <span class="shelf-count" th:text="|${editions.languageCount()} language editions on the shelf|">3 language editions on the shelf</span>
+            </div>
+
+            <ul class="edition-list">
+                <li class="edition" th:each="other : ${editions.others()}">
+                    <a class="edition-cover" th:href="@{/shop/book/{id}(id=${other.id})}">
+                        <span class="cover-letter cover-letter-small"
+                              th:text="${#strings.toUpperCase(#strings.substring(other.title, 0, 1))}">L</span>
+                        <img class="cover-image" th:if="${other.hasCover}" th:src="${other.coverMedium}"
+                             th:alt="|Cover of ${other.title}|" loading="lazy" onerror="this.remove()">
+                    </a>
+
+                    <div class="edition-info">
+                        <a class="edition-name" th:href="@{/shop/book/{id}(id=${other.id})}" th:text="${other.title}">L'Étranger</a>
+                        <p class="edition-meta">
+                            <span class="lang-tag" th:text="${other.language}">French</span>
+                            <span th:text="|$${#numbers.formatDecimal(other.price, 1, 'COMMA', 2, 'POINT')} buy|">$12.50 buy</span>
+                            <span th:text="|$${#numbers.formatDecimal(other.rentalPrice, 1, 'COMMA', 2, 'POINT')} rent|">$2.10 rent</span>
+                        </p>
+                        <p class="stock-line" th:if="${other.inStock}" th:text="|${other.stockQuantity} copy/copies ready|"></p>
+                        <p class="stock-line stock-line-out" th:unless="${other.inStock}">Sold out</p>
+                    </div>
+
+                    <form class="edition-buy" th:action="@{/shop/cart/add}" method="post" th:if="${other.inStock}">
+                        <input type="hidden" name="bookId" th:value="${other.id}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" name="action" value="BUY" class="btn btn-small btn-primary">Buy</button>
+                        <button type="submit" name="action" value="RENT" class="btn btn-small">Rent</button>
+                    </form>
+                </li>
+            </ul>
+        </section>
+
+        <div class="opinion-bar">
+            <div class="opinion-score-block">
+                <span class="opinion-big" th:text="${opinion.hasRatings()} ? ${opinion.averageText()} : '—'">4.5</span>
+                <span th:replace="~{fragments/layout :: stars(${opinion.fullStars()})}"></span>
+                <span class="opinion-meta"
+                      th:text="${opinion.reviewCount} == 0 ? 'No reviews yet' : |${opinion.reviewCount} reader review(s)|">
+                    3 reader review(s)
+                </span>
+            </div>
+
+            <p class="opinion-likes" th:if="${opinion.likes() > 0}" th:text="|&#9829; ${opinion.likes()} reader(s) liked this|">
+                &#9829; 6 reader(s) liked this
+            </p>
+        </div>
+
+        <form th:action="@{/shop/cart/add}" method="post" class="detail-buy" th:if="${book.inStock}">
+            <input type="hidden" name="bookId" th:value="${book.id}">
+
+            <div class="form-group">
+                <label for="quantity">Copies</label>
+                <input type="number" id="quantity" name="quantity" value="1" min="1"
+                       th:max="${book.stockQuantity}">
+                <span class="hint">Up to <span th:text="${book.stockQuantity}">3</span> can go in one order.</span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" name="action" value="BUY" class="btn btn-primary">Add to cart — buy</button>
+                <button type="submit" name="action" value="RENT" class="btn btn-ghost">Add to cart — rent</button>
+            </div>
+        </form>
+
+        <p class="alert alert-error" th:unless="${book.inStock}">
+            No copies on the shelf at the moment.
+            <span th:if="${editions.multilingual and editions.hasStockElsewhere()}"
+                  th:text="|Pick one of the ${editions.inStockOthers().size()} other language edition(s) above instead.|">Pick one of the 2 other language edition(s) above instead.</span>
+        </p>
+
+        <section class="reviews">
+            <div class="section-head">
+                <h4>Reader reviews</h4>
+                <span class="shelf-count" th:text="|${#lists.size(reviews)} written|">3 written</span>
+            </div>
+
+            <form class="review-form" th:action="@{/shop/book/{id}/review(id=${book.id})}" method="post">
+                <div class="form-group">
+                    <span class="label-text">Your rating <span class="req">*</span></span>
+                    <div class="star-pick" role="radiogroup" aria-label="Your rating, one to five stars">
+                        <th:block th:each="i : ${#numbers.sequence(maxRating, 1)}">
+                            <input type="radio" th:id="|star-${i}|" name="rating" th:value="${i}" required>
+                            <label th:for="|star-${i}|" th:title="${i == 1} ? '1 star' : |${i} stars|">&#9733;</label>
+                        </th:block>
+                    </div>
+                </div>
+
+                <div class="form-group grow">
+                    <label for="comment">What did you think? <span class="opt">optional</span></label>
+                    <textarea id="comment" name="comment" rows="2" maxlength="400"
+                              placeholder="A sentence or two for the next reader."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Post review</button>
+            </form>
+
+            <p class="empty-line" th:if="${#lists.isEmpty(reviews)}">
+                Nobody has reviewed this book yet — yours would be the first.
+            </p>
+
+            <ul class="review-list" th:unless="${#lists.isEmpty(reviews)}">
+                <li class="review" th:each="review : ${reviews}">
+                    <div class="review-head">
+                        <span class="review-who" th:text="${review.username}">reader</span>
+                        <span th:replace="~{fragments/layout :: stars(${review.rating})}"></span>
+                        <span class="review-when"
+                              th:text="${#temporals.format(review.createdAt, 'd MMM yyyy')}">1 Oct 2026</span>
+                    </div>
+                    <p class="review-text" th:if="${!#strings.isEmpty(review.comment)}"
+                       th:text="${review.comment}">A plain, honest note from one reader to the next.</p>
+                    <form th:action="@{/shop/review/{id}/delete(id=${review.id})}" method="post"
+                          th:if="${review.username == currentUser}">
+                        <input type="hidden" name="bookId" th:value="${book.id}">
+                        <button type="submit" class="link link-danger">Remove my review</button>
+                    </form>
+                </li>
+            </ul>
+        </section>
+    </section>
+</main>
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+</body>
+</html>

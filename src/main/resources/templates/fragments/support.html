@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--
+    Just the message bubbles for one reader's support thread. The floating chat widget
+    fetches this fragment, and the /shop/support/send reply returns it too, so the bubble
+    list and the widget always look identical. The helper greeting always leads.
+-->
+<th:block th:fragment="thread">
+    <div class="chat-row chat-them">
+        <span class="chat-avatar" aria-hidden="true">E</span>
+        <div class="chat-bubble them">
+            <strong class="chat-who">E-Shelf helper</strong>
+            <p>Hi! Ask me anything about your books, orders or returns. A librarian reads it and answers here.</p>
+        </div>
+    </div>
+
+    <div class="chat-row chat-them" th:if="${#lists.isEmpty(messages)}">
+        <span class="chat-avatar" aria-hidden="true">E</span>
+        <div class="chat-bubble them">
+            <p>You have not asked anything yet — type a message below to start the chat.</p>
+        </div>
+    </div>
+
+    <div th:each="m : ${messages}" class="chat-row"
+         th:classappend="${m.fromAdmin} ? 'chat-them' : 'chat-me'">
+        <span class="chat-avatar" th:if="${m.fromAdmin}" aria-hidden="true">E</span>
+        <div class="chat-bubble" th:classappend="${m.fromAdmin} ? 'them' : 'me'">
+            <strong class="chat-who" th:if="${m.fromAdmin}">
+                <span th:text="${m.automated} ? 'E-Shelf helper' : 'Librarian'">E-Shelf helper</span>
+                <span class="chat-bot-tag" th:if="${m.automated}">auto</span>
+            </strong>
+            <p th:text="${m.body}">How do I return a book?</p>
+            <span class="chat-when" th:text="${#temporals.format(m.createdAt, 'd MMM, HH:mm')}">1 Oct, 09:12</span>
+        </div>
+    </div>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — My Profile')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('profile')}"></header>
+
+<main>
+    <section class="hero">
+        <div class="profile-head">
+            <span class="avatar avatar-big">
+                <span class="avatar-letter" th:text="${user.initials}">RK</span>
+                <img class="avatar-image" th:if="${user.avatarUrl != null}" th:src="${user.avatarUrl}"
+                     th:alt="|${user.displayName} profile picture|" onerror="this.remove()">
+            </span>
+            <div>
+                <h2 class="profile-name" th:text="${user.displayName}">Ravi Kumar</h2>
+                <p class="profile-handle" th:text="|@${user.username}|">@reader</p>
+                <p class="profile-role" th:text="${user.admin} ? 'Librarian (back office)' : 'Reader'">Reader</p>
+                <p class="profile-since" th:if="${user.joinedAt != null}"
+                   th:text="|reader since ${#temporals.format(user.joinedAt, 'MMM yyyy')}|">reader since Oct 2026</p>
+                <p class="profile-since" th:if="${user.photoPath == null and user.avatar != null}"
+                   th:text="|wearing ${user.avatar.character} · ${user.avatar.credit}|">wearing Sherlock Holmes</p>
+                <p class="profile-since" th:if="${user.photoPath != null}">wearing your own photo</p>
+                <!-- The editor is gone from the page, so the way into it lives here. -->
+                <a class="link" th:if="${hasPicture and !editing}" th:href="@{/profile(edit=1)}">Change profile</a>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-value" th:text="${#lists.size(orders)}">0</span>
+                <span class="stat-label">Orders</span>
+            </div>
+            <div class="stat stat-ok">
+                <span class="stat-value" th:text="${buyCount}">0</span>
+                <span class="stat-label">Bought</span>
+            </div>
+            <div class="stat stat-soon">
+                <span class="stat-value" th:text="${rentCount}">0</span>
+                <span class="stat-label">Rented</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value"
+                      th:text="|$${#numbers.formatDecimal(totalSpend, 1, 'COMMA', 2, 'POINT')}|">$0.00</span>
+                <span class="stat-label">Spent</span>
+            </div>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/layout :: banners}"></div>
+
+    <div class="profile-stack">
+        <!-- One card, two moods: quietly shows what we have for you, or opens right up
+             into the picture shelf and the details form when you ask to change them. -->
+        <section class="card">
+            <div class="card-head">
+                <h3>My profile</h3>
+                <a class="link" th:if="${editing}" th:href="@{/profile}">Done</a>
+                <span class="shelf-count" th:unless="${editing}"
+                      th:text="${showEditor} ? 'Pick a picture and fill in your details' : 'Read only'">Read only</span>
+            </div>
+
+            <dl class="detail-list" th:unless="${showEditor}">
+                <div>
+                    <dt>Full name</dt>
+                    <dd th:text="${user.fullName}">Ravi Kumar</dd>
+                </div>
+                <div>
+                    <dt>Email</dt>
+                    <dd th:text="${user.email}">ravi@example.test</dd>
+                </div>
+                <div>
+                    <dt>Phone</dt>
+                    <dd th:text="${!#strings.isEmpty(user.phone)} ? ${user.phone} : 'Not given'">+91 90000 55443</dd>
+                </div>
+                <div>
+                    <dt>Delivery address</dt>
+                    <dd th:text="${!#strings.isEmpty(user.address)} ? ${user.address} : 'Not given'">Flatchen House</dd>
+                </div>
+                <div>
+                    <dt>Picture</dt>
+                    <dd th:text="${user.photoPath != null} ? 'Your own photo' : ${user.avatar.character}">Mowgli</dd>
+                </div>
+                <div>
+                    <dt>Username</dt>
+                    <dd th:text="${user.username}">reader</dd>
+                </div>
+            </dl>
+
+            <th:block th:if="${showEditor}">
+                <p class="hero-sub">Wear a character from a book, or upload your own photo. Whichever you did last is what shows.</p>
+
+                <ul class="avatar-shelf">
+                    <li th:each="choice : ${characters}">
+                        <form th:action="@{/profile/avatar}" method="post">
+                            <input type="hidden" name="character" th:value="${choice.fileKey}">
+                            <button type="submit" class="avatar-tile"
+                                    th:classappend="${user.photoPath == null and user.avatar == choice} ? 'active'"
+                                    th:title="|${choice.character} — ${choice.credit}|">
+                                <span class="avatar">
+                                    <img class="avatar-image" th:src="${choice.imageUrl}"
+                                         th:alt="|${choice.character}|" loading="lazy">
+                                </span>
+                                <strong th:text="${choice.character}">Sherlock Holmes</strong>
+                                <em th:text="${choice.credit}">Sidney Paget, 1893</em>
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+
+                <form class="upload-form" th:action="@{/profile/photo}" method="post" enctype="multipart/form-data">
+                    <div class="form-group grow">
+                        <label for="photo">Your own photo (JPG, PNG or WEBP, up to 2 MB)</label>
+                        <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Upload photo</button>
+                </form>
+
+                <!-- Its own form, so the required file input above cannot block the removal. -->
+                <form class="photo-remove" th:action="@{/profile/photo/remove}" method="post"
+                      th:if="${user.photoPath != null}">
+                    <button type="submit" class="link link-danger">Remove my photo</button>
+                </form>
+
+                <form th:action="@{/profile/details}" method="post" class="details-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fullName">Full name <span class="req">*</span></label>
+                            <input type="text" id="fullName" name="fullName" th:value="${user.fullName}"
+                                   placeholder="e.g. Ravi Kumar" required maxlength="60">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email <span class="req">*</span></label>
+                            <input type="email" id="email" name="email" th:value="${user.email}"
+                                   placeholder="you@example.com" required maxlength="80">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Phone <span class="opt">optional</span></label>
+                            <input type="tel" id="phone" name="phone" th:value="${user.phone}"
+                                   placeholder="e.g. +91 98765 43210" maxlength="40">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">Delivery address <span class="opt">optional</span></label>
+                            <input type="text" id="address" name="address" th:value="${user.address}"
+                                   placeholder="Street, city, pin code" maxlength="160">
+                        </div>
+                    </div>
+
+                    <p class="hint">Only you can see this page. Your username and password are not changed here.</p>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Save details</button>
+                    </div>
+                </form>
+            </th:block>
+        </section>
+
+        <section class="card">
+            <div class="card-head">
+                <h3>Reviews you wrote</h3>
+                <span class="shelf-count" th:text="|${#lists.size(reviews)} written|">3 written</span>
+            </div>
+
+            <p class="empty-line" th:if="${#lists.isEmpty(reviews)}">
+                You have not reviewed a book yet — <a class="link" th:href="@{/shop}">find one to read</a>.
+            </p>
+
+            <ul class="review-list" th:unless="${#lists.isEmpty(reviews)}">
+                <li class="review" th:each="review : ${reviews}">
+                    <div class="review-head">
+                        <a class="link" th:href="@{/shop/book/{id}(id=${review.book.id})}"
+                           th:text="${review.book.title}">Clean Code</a>
+                        <span th:replace="~{fragments/layout :: stars(${review.rating})}"></span>
+                        <span class="review-when"
+                              th:text="${#temporals.format(review.createdAt, 'd MMM yyyy')}">1 Oct 2026</span>
+                    </div>
+                    <p class="review-text" th:if="${!#strings.isEmpty(review.comment)}"
+                       th:text="${review.comment}">A plain, honest note from one reader to the next.</p>
+                </li>
+            </ul>
+        </section>
+    </div>
+
+    <section class="card">
+        <div class="card-head">
+            <h3>Buying and renting history</h3>
+            <a class="btn btn-ghost" th:href="@{/shop/orders}">Manage orders</a>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Type</th>
+                    <th>Copies</th>
+                    <th>Total</th>
+                    <th>Ordered</th>
+                    <th>Due / returned</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="order : ${orders}">
+                    <td data-label="Book" class="cell-title">
+                        <a class="link" th:href="@{/shop/book/{id}(id=${order.book.id})}"
+                           th:text="${order.book.title}">Clean Code</a>
+                        <span class="lang-tag"
+                              th:if="${order.book.language != null and order.book.language != 'English'}"
+                              th:text="${order.book.language}">Tamil</span>
+                    </td>
+                    <td data-label="Type">
+                        <span class="badge"
+                              th:classappend="${order.type.name() == 'BUY'} ? 'badge-ok' : 'badge-soon'"
+                              th:text="${order.type.label}">Buy</span>
+                    </td>
+                    <td data-label="Copies" th:text="${order.quantity}">1</td>
+                    <td data-label="Total" class="cell-price"
+                        th:text="|$${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 2, 'POINT')}|">$44.99</td>
+                    <td data-label="Ordered"
+                        th:text="${#temporals.format(order.orderDate, 'dd MMM yyyy')}">01 Oct 2026</td>
+                    <td data-label="Due / returned">
+                        <span class="badge badge-out" th:if="${order.overdue}"
+                              th:text="|Overdue since ${#temporals.format(order.dueDate, 'dd MMM')}|">Overdue</span>
+                        <span th:if="${order.dueDate != null and !order.overdue}"
+                              th:text="${#temporals.format(order.dueDate, 'dd MMM yyyy')}">24 Oct 2026</span>
+                        <span th:if="${order.returnedAt != null}"
+                              th:text="|Returned ${#temporals.format(order.returnedAt, 'dd MMM')}|">Returned 12 Oct</span>
+                        <span class="hint" th:if="${order.dueDate == null and order.returnedAt == null}">Yours to keep</span>
+                    </td>
+                    <td data-label="Status">
+                        <span class="badge"
+                              th:classappend="${order.status.name() == 'PAID'} ? 'badge-ok'
+                                              : (${order.status.name() == 'RETURNED'} ? 'badge-soon' : 'badge-out')"
+                              th:text="${order.status.label}">Confirmed</span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(orders)}">
+                    <td colspan="7" class="empty">You have not bought or rented anything yet.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+</body>
+</html>

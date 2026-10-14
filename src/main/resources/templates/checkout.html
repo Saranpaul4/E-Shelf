@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — Confirm & Pay')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('cart')}"></header>
+
+<main>
+    <section class="hero">
+        <div class="hero-text">
+            <p class="eyebrow">Almost Done</p>
+            <h2 class="hero-title">Confirm &amp; Pay</h2>
+            <p class="hero-sub">Check the order, then pay securely with Razorpay. Your copies only
+                leave the shelf once the payment is confirmed.</p>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/layout :: banners}"></div>
+
+    <p class="alert alert-error" th:if="${empty}">There is nothing to pay for &mdash; your cart is empty.</p>
+
+    <div th:if="${!empty}" class="pay-grid">
+        <section class="card">
+            <div class="card-head"><h3>Order summary</h3></div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Book</th>
+                        <th>Type</th>
+                        <th>Each</th>
+                        <th>Copies</th>
+                        <th>Line total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${items}">
+                        <td class="cell-title" th:text="${item.book().title}">Clean Code</td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${item.type().name() == 'BUY'} ? 'badge-ok' : 'badge-soon'"
+                                  th:text="${item.type().label}">Buy</span>
+                        </td>
+                        <td class="cell-price"
+                            th:text="|$${#numbers.formatDecimal(item.unitPrice(), 1, 'COMMA', 2, 'POINT')}|">$6.99</td>
+                        <td th:text="${item.quantity()}">2</td>
+                        <td class="cell-price"
+                            th:text="|$${#numbers.formatDecimal(item.lineTotal(), 1, 'COMMA', 2, 'POINT')}|">$13.98</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="hint" th:text="|Rentals are due back in ${rentalDays} days.|">Rentals are due back in 14 days.</p>
+        </section>
+
+        <section class="card pay-side">
+            <div class="card-head"><h3>Payment</h3></div>
+            <dl class="detail-list">
+                <div>
+                    <dt>Paying as</dt>
+                    <dd th:text="${me.displayName}">Ravi Kumar</dd>
+                </div>
+                <div>
+                    <dt>Email</dt>
+                    <dd th:text="${!#strings.isEmpty(me.email)} ? ${me.email} : 'Not given'">ravi@example.test</dd>
+                </div>
+                <div>
+                    <dt>Deliver to</dt>
+                    <dd th:text="${!#strings.isEmpty(me.address)} ? ${me.address} : 'Add one on your profile'">Flatchen House</dd>
+                </div>
+                <div>
+                    <dt>Phone</dt>
+                    <dd th:text="${!#strings.isEmpty(me.phone)} ? ${me.phone} : 'Not given'">+91 90000 55443</dd>
+                </div>
+            </dl>
+            <div class="checkout-total">
+                <span class="checkout-label">Total to pay</span>
+                <span class="checkout-value"
+                      th:text="|$${#numbers.formatDecimal(grandTotal, 1, 'COMMA', 2, 'POINT')}|">$0.00</span>
+            </div>
+            <button type="button" id="pay-button" class="btn btn-primary">Pay with Razorpay</button>
+            <p class="hint" id="pay-status">&nbsp;</p>
+            <a class="btn btn-ghost" th:href="@{/shop/cart}">Back to cart</a>
+        </section>
+    </div>
+
+    <a class="btn btn-ghost" th:href="@{/shop}">Keep shopping</a>
+</main>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script th:inline="javascript">
+    var RZP_KEY = /*[[${keyId}]]*/ 'rzp_test_REPLACE_ME';
+    var CSRF_NAME = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
+    var CSRF_TOKEN = /*[[${_csrf.token}]]*/ '';
+
+    (function () {
+        var button = document.getElementById('pay-button');
+        if (!button) return;
+        var status = document.getElementById('pay-status');
+
+        function say(text) { status.textContent = text; }
+        function headers(extra) {
+            var h = {};
+            h[CSRF_NAME] = CSRF_TOKEN;
+            if (extra) { for (var k in extra) h[k] = extra[k]; }
+            return h;
+        }
+
+        button.addEventListener('click', function () {
+            if (typeof Razorpay !== 'function') {
+                say('Razorpay could not load. Check the connection and the test keys.');
+                return;
+            }
+            button.disabled = true;
+            say('Preparing your order...');
+            fetch('/shop/checkout/create-order', { method: 'POST', headers: headers() })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (!data.success) {
+                        button.disabled = false;
+                        say(data.message || 'Could not create the order.');
+                        return;
+                    }
+                    openRazorpay(data);
+                })
+                .catch(function () {
+                    button.disabled = false;
+                    say('Network error while creating the order.');
+                });
+        });
+
+        function openRazorpay(order) {
+            var rzp = new Razorpay({
+                key: RZP_KEY,
+                amount: order.amount,
+                currency: 'INR',
+                name: 'E-Shelf',
+                description: 'Confirm your cart',
+                order_id: order.orderId,
+                handler: verify,
+                theme: { color: '#7a4a24' }
+            });
+            rzp.on('payment.failed', function () {
+                button.disabled = false;
+                say('That payment failed, so nothing was charged. You can try again.');
+            });
+            rzp.open();
+        }
+
+        function verify(resp) {
+            say('Confirming your payment...');
+            fetch('/shop/checkout/verify', {
+                method: 'POST',
+                headers: headers({ 'Content-Type': 'application/json' }),
+                body: JSON.stringify({
+                    razorpay_order_id: resp.razorpay_order_id,
+                    razorpay_payment_id: resp.razorpay_payment_id,
+                    razorpay_signature: resp.razorpay_signature
+                })
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.success) {
+                        say(data.message || 'Payment received.');
+                        window.location.href = data.redirect || '/shop/orders';
+                    } else {
+                        button.disabled = false;
+                        say(data.message || 'We could not confirm that payment.');
+                    }
+                })
+                .catch(function () {
+                    button.disabled = false;
+                    say('Network error while confirming the payment.');
+                });
+        }
+    })();
+</script>
+
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+</body>
+</html>

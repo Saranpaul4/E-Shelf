@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — Admin: Orders')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('orders')}"></header>
+
+<main>
+    <section class="hero">
+        <div class="hero-text">
+            <p class="eyebrow">Back Office</p>
+            <h2 class="hero-title">Every order in the shop</h2>
+            <p class="hero-sub">What customers bought, what they are still renting, and what has come back.</p>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-value" th:text="${orderCount}">0</span>
+                <span class="stat-label">Orders</span>
+            </div>
+            <div class="stat stat-ok">
+                <span class="stat-value" th:text="${buyCount}">0</span>
+                <span class="stat-label">Bought</span>
+            </div>
+            <div class="stat stat-soon">
+                <span class="stat-value" th:text="${rentCount}">0</span>
+                <span class="stat-label">Out on rent</span>
+            </div>
+            <div class="stat stat-out">
+                <span class="stat-value"
+                      th:text="|$${#numbers.formatDecimal(revenue, 1, 'COMMA', 2, 'POINT')}|">$0.00</span>
+                <span class="stat-label">Revenue</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Book</th>
+                <th>Type</th>
+                <th>Copies</th>
+                <th>Total</th>
+                <th>Ordered</th>
+                <th>Due</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="order : ${orders}">
+                <td data-label="Order" th:text="${order.id}">1</td>
+                <td data-label="Customer" class="cell-title" th:text="${order.username}">reader</td>
+                <td data-label="Book" th:text="${order.book.title}">Clean Code</td>
+                <td data-label="Type">
+                    <span class="badge"
+                          th:classappend="${order.type.name() == 'BUY'} ? 'badge-ok' : 'badge-soon'"
+                          th:text="${order.type.label}">Buy</span>
+                </td>
+                <td data-label="Copies" th:text="${order.quantity}">1</td>
+                <td data-label="Total" class="cell-price"
+                    th:text="|$${#numbers.formatDecimal(order.totalAmount, 1, 'COMMA', 2, 'POINT')}|">$44.99</td>
+                <td data-label="Ordered" th:text="${#temporals.format(order.orderDate, 'dd MMM HH:mm')}">01 Oct 10:30</td>
+                <td data-label="Due">
+                    <span class="badge badge-out" th:if="${order.overdue}"
+                          th:text="|Overdue ${#temporals.format(order.dueDate, 'dd MMM')}|">Overdue</span>
+                    <span th:if="${order.dueDate != null and !order.overdue}"
+                          th:text="${#temporals.format(order.dueDate, 'dd MMM yyyy')}">24 Oct 2026</span>
+                    <span class="hint" th:if="${order.dueDate == null}">—</span>
+                </td>
+                <td data-label="Status">
+                    <span class="badge"
+                          th:classappend="${order.status.name() == 'PAID'} ? 'badge-ok'
+                                          : (${order.status.name() == 'RETURNED'} ? 'badge-soon' : 'badge-out')"
+                          th:text="${order.status.label}">Confirmed</span>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(orders)}">
+                <td colspan="9" class="empty">No orders yet — they appear here once a customer checks out.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+</body>
+</html>

@@ -1,0 +1,14 @@
+Profile avatars: illustrations from books that are in the public domain.
+Downloaded from Wikimedia Commons and cropped to squares for E-Shelf.
+
+file	source page	artist - work	license	file page
+
+holmes.jpg	File:Portrait of Sherlock Holmes by Sidney Paget-Cropped.jpg	Sidney Paget - The Strand Magazine, 1893	Public domain	https://commons.wikimedia.org/wiki/File%3APortrait_of_Sherlock_Holmes_by_Sidney_Paget-Cropped.jpg
+alice.jpg	File:Alice talks to the Red Queen (Illustration by John Tenniel).png	John Tenniel - Through the Looking-Glass, 1871	Public domain	https://commons.wikimedia.org/wiki/File%3AAlice_talks_to_the_Red_Queen_%28Illustration_by_John_Tenniel%29.png
+peter-pan.jpg	File:Peter pan 1911 pipes.jpg	W. B. Whaite after J. M. Barrie - Peter and Wendy, 1911	Public domain	https://commons.wikimedia.org/wiki/File%3APeter_pan_1911_pipes.jpg
+mowgli.jpg	File:Mowgli-1895-illustration.png	John Lockwood Kipling - The Second Jungle Book, 1895	Public domain	https://commons.wikimedia.org/wiki/File%3AMowgli-1895-illustration.png
+dorothy.jpg	File:The Wonderful Wizard of Oz, Dorothy gazed thoughtfully at the Scarecrow.jpg	W. W. Denslow - The Wonderful Wizard of Oz, 1900	Public domain	https://commons.wikimedia.org/wiki/File%3AThe_Wonderful_Wizard_of_Oz%2C_Dorothy_gazed_thoughtfully_at_the_Scarecrow.jpg
+quixote.jpg	File:Don Quixote 1.jpg	Gustave Dore - Don Quixote, 1863	Public domain	https://commons.wikimedia.org/wiki/File%3ADon_Quixote_1.jpg
+robin-hood.jpg	File:Robin Hood (Howard Pyle) p70.jpg	Howard Pyle - The Merry Adventures of Robin Hood, 1883	Public domain	https://commons.wikimedia.org/wiki/File%3ARobin_Hood_%28Howard_Pyle%29_p70.jpg
+silver.jpg	File:Treasure Island Chapter 10.png	Christian Schindler - Treasure Island, 1911	Public domain	https://commons.wikimedia.org/wiki/File%3ATreasure_Island_Chapter_10.png
+dorian.jpg	File:Wilde - Le portrait de Dorian Gray (trad. Jaloux), 1928 - image-361.jpg	Unknown - Le portrait de Dorian Gray, 1928 edition	Public domain	https://commons.wikimedia.org/wiki/File%3AWilde_-_Le_portrait_de_Dorian_Gray_%28trad._Jaloux%29%2C_1928_-_image-361.jpg

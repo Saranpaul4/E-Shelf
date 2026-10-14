@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — Not allowed')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('none')}"></header>
+
+<main class="auth-main">
+    <section class="card auth-card">
+        <p class="eyebrow">403</p>
+        <h2 class="hero-title">That page belongs to the other portal</h2>
+        <p class="hero-sub">Customers use the shop; only a librarian can open the back office.</p>
+        <div class="form-actions">
+            <a class="btn btn-primary" th:href="${isAdminUser} ? @{/admin/books} : @{/shop}">Take me back</a>
+            <form th:action="@{/logout}" method="post" th:if="${currentUser != null}">
+                <button type="submit" class="btn btn-ghost">Sign in as someone else</button>
+            </form>
+        </div>
+    </section>
+</main>
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+</body>
+</html>

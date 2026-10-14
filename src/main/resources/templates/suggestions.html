@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — Suggestions')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('suggestions')}"></header>
+
+<main>
+    <section class="hero hero-suggest">
+        <div class="hero-text">
+            <p class="eyebrow">New Here?</p>
+            <h2 class="hero-title">Suggestions</h2>
+            <p class="hero-sub">Pick a book using what other readers said, not just the cover.</p>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-value" th:text="${totalBooks}">0</span>
+                <span class="stat-label">Titles</span>
+            </div>
+            <div class="stat stat-ok">
+                <span class="stat-value" th:text="${inStockBooks}">0</span>
+                <span class="stat-label">Ready</span>
+            </div>
+            <div class="stat stat-soon">
+                <span class="stat-value" th:text="${ratedCount}">0</span>
+                <span class="stat-label">Recommended</span>
+            </div>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/layout :: banners}"></div>
+
+    <section class="shelf">
+        <div class="shelf-head">
+            <h4 class="shelf-title">Reader favourites</h4>
+            <span class="shelf-count">Best average from at least two reviews, on the shelf today</span>
+        </div>
+
+        <div class="book-grid" th:if="${!#lists.isEmpty(favourites)}">
+            <article class="book-card" th:each="book : ${favourites}"
+                     th:attr="data-large=${book.coverLarge},data-title=${book.title},data-letter=${#strings.toUpperCase(#strings.substring(book.title, 0, 1))}">
+                <div class="book-cover">
+                    <span class="cover-letter" th:text="${#strings.toUpperCase(#strings.substring(book.title, 0, 1))}">C</span>
+                    <img class="cover-image" th:if="${book.hasCover}" th:src="${book.coverMedium}"
+                         th:alt="|Cover of ${book.title}|" loading="lazy" onerror="this.remove()">
+                </div>
+                <div class="book-info">
+                    <h4 class="book-name" th:text="${book.title}">Clean Code</h4>
+                    <p class="book-author" th:text="${book.author}">Robert C. Martin</p>
+                    <p class="opinion-line" th:with="op=${opinions.get(book.id)}">
+                        <span th:replace="~{fragments/layout :: stars(${op.fullStars()})}"></span>
+                        <span class="opinion-score" th:text="|${op.averageText()} (${op.reviewCount})|">4.5 (3)</span>
+                        <span class="opinion-likes" th:if="${op.likes() > 0}" th:text="|&#9829; ${op.likes()}|">&#9829; 4</span>
+                    </p>
+                    <div class="card-actions">
+                        <a class="btn btn-small btn-primary" th:href="@{/shop/book/{id}(id=${book.id})}">Read the reviews</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+        <p class="empty-line" th:if="${#lists.isEmpty(favourites)}">
+            No book has two reviews yet. <a th:href="@{/shop}" class="link">Browse the shop</a> and rate a few.
+        </p>
+    </section>
+
+    <section class="shelf">
+        <div class="shelf-head">
+            <h4 class="shelf-title">Most liked</h4>
+            <span class="shelf-count">Counted from the Like button, one per reader</span>
+        </div>
+
+        <div class="book-grid" th:if="${!#lists.isEmpty(popular)}">
+            <article class="book-card" th:each="book : ${popular}"
+                     th:attr="data-large=${book.coverLarge},data-title=${book.title},data-letter=${#strings.toUpperCase(#strings.substring(book.title, 0, 1))}">
+                <div class="book-cover">
+                    <span class="cover-letter" th:text="${#strings.toUpperCase(#strings.substring(book.title, 0, 1))}">C</span>
+                    <img class="cover-image" th:if="${book.hasCover}" th:src="${book.coverMedium}"
+                         th:alt="|Cover of ${book.title}|" loading="lazy" onerror="this.remove()">
+                </div>
+                <div class="book-info">
+                    <h4 class="book-name" th:text="${book.title}">Atomic Habits</h4>
+                    <p class="book-author" th:text="${book.author}">James Clear</p>
+                    <p class="opinion-line" th:with="op=${opinions.get(book.id)}">
+                        <span class="opinion-likes" th:text="|&#9829; ${op.likes()} like(s)|">&#9829; 6 like(s)</span>
+                        <span class="opinion-score" th:if="${op.hasRatings()}"
+                              th:text="|${op.averageText()} (${op.reviewCount})|">4.0 (2)</span>
+                        <span class="opinion-none" th:unless="${op.hasRatings()}">Not rated yet</span>
+                    </p>
+                    <div class="card-actions">
+                        <a class="btn btn-small btn-primary" th:href="@{/shop/book/{id}(id=${book.id})}">Read the reviews</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+        <p class="empty-line" th:if="${#lists.isEmpty(popular)}">
+            Nothing has been liked yet. Tap the heart on any book page and it shows up here.
+        </p>
+    </section>
+
+    <section class="shelf">
+        <div class="shelf-head">
+            <h4 class="shelf-title">Fresh opinions</h4>
+            <span class="shelf-count">The newest things readers wrote</span>
+        </div>
+
+        <ul class="review-list" th:if="${!#lists.isEmpty(recent)}">
+            <li class="review review-quote" th:each="review : ${recent}">
+                <div class="review-head">
+                    <span th:replace="~{fragments/layout :: stars(${review.rating})}"></span>
+                    <span class="review-who" th:text="${review.username}">reader</span>
+                    <span class="review-when"
+                          th:text="${#temporals.format(review.createdAt, 'd MMM')}">1 Oct</span>
+                </div>
+                <p class="review-text" th:if="${!#strings.isEmpty(review.comment)}" th:text="${review.comment}">
+                    A short, plain note from one reader to the next.
+                </p>
+                <p class="review-about">
+                    on <a th:href="@{/shop/book/{id}(id=${review.book.id})}" th:text="${review.book.title}">Clean Code</a>
+                    &middot; <span th:text="${review.book.author}">Robert C. Martin</span>
+                </p>
+            </li>
+        </ul>
+        <p class="empty-line" th:if="${#lists.isEmpty(recent)}">
+            No reviews yet — this list fills up as soon as readers start writing.
+        </p>
+    </section>
+
+    <div class="cover-pop" id="coverPop" hidden>
+        <div class="cover-pop-media" id="coverPopMedia"></div>
+        <p class="cover-pop-caption" id="coverPopCaption"></p>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+</body>
+</html>

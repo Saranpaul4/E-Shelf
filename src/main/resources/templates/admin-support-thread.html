@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — Support thread')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('support')}"></header>
+
+<main>
+    <section class="hero">
+        <div class="hero-text">
+            <p class="eyebrow">Back Office</p>
+            <h2 class="hero-title" th:text="|Chat with ${customer}|">Chat with Ravi Kumar</h2>
+            <p class="hero-sub">Anything you reply shows up in this reader's own Support page right away.</p>
+            <a class="link" th:href="@{/admin/support}">&larr; All threads</a>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/layout :: banners}"></div>
+
+    <section class="card chat-card">
+        <div class="chat-window" id="chat-window">
+            <div th:if="${#lists.isEmpty(messages)}" class="chat-row chat-them">
+                <div class="chat-bubble them"><p>This reader has not written anything yet.</p></div>
+            </div>
+
+            <div th:each="m : ${messages}" class="chat-row"
+                 th:classappend="${m.fromAdmin} ? 'chat-me' : 'chat-them'">
+                <span class="chat-avatar" th:unless="${m.fromAdmin}"
+                      th:text="${#strings.toUpperCase(#strings.substring(customer, 0, 1))}">R</span>
+                <div class="chat-bubble" th:classappend="${m.fromAdmin} ? 'me' : 'them'">
+                    <strong class="chat-who"
+                            th:text="${m.fromAdmin} ? (${m.automated} ? 'E-Shelf helper' : 'You') : ${customer}">Reader</strong>
+                    <span class="chat-bot-tag" th:if="${m.automated}">auto</span>
+                    <p th:text="${m.body}">How do I return a book?</p>
+                    <span class="chat-when" th:text="${#temporals.format(m.createdAt, 'd MMM, HH:mm')}">1 Oct, 09:12</span>
+                </div>
+            </div>
+        </div>
+
+        <form class="chat-input" th:action="@{/admin/support/reply}" method="post">
+            <input type="hidden" name="user" th:value="${username}">
+            <textarea id="body" name="body" rows="2" aria-label="Your reply"
+                      placeholder="Type your reply…" required maxlength="1000"></textarea>
+            <button type="submit" class="btn btn-primary">Reply</button>
+        </form>
+    </section>
+</main>
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+<script>
+    (function () {
+        var win = document.getElementById('chat-window');
+        if (win) { win.scrollTop = win.scrollHeight; }
+    })();
+</script>
+</body>
+</html>

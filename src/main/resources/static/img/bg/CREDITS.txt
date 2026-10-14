@@ -1,0 +1,44 @@
+Background artwork — people reading, all public domain
+=======================================================
+
+Every picture here is an out-of-copyright painting (the artist died centuries ago)
+downloaded from Wikimedia Commons. Files were scaled down locally; nothing is served
+from a third-party host at page-load time.
+
+  vermeer.jpg    Girl Reading a Letter at an Open Window
+                 Johannes Vermeer (1632-1675), c. 1657-1659
+                 Source: Wikimedia Commons, "Johannes Vermeer - Girl Reading a Letter
+                 at an Open Window - WGA24614.jpg" — Public domain
+                 Used behind the hero band.
+
+  dou.jpg        An Old Woman Reading a Book
+                 Circle of Gerrit Dou (1613-1675), 17th century
+                 Source: Wikimedia Commons, "Gerard Dou circle - An old woman reading
+                 a book 2013 AMS 03040 0139.jpg" — Public domain
+                 Used behind the top navigation bar.
+
+  boutrois.jpg   An Old Woman Reading a Book
+                 After Rembrandt, etching by S. Boutrois
+                 Source: Wikimedia Commons, "An old woman reading a book
+                 PK-P-126.431.jpg" (Rijksmuseum) — Public domain
+                 Used as the faint tiled texture across the page background.
+
+  shop.jpg       Boutique de M. Dentu, libraire, galerie d'Orleans, 1829
+                 Theodor Josef Hubert Hoffbauer (1839-1922)
+                 Source: Wikimedia Commons, "Boutique de M. Dentu, libraire, dans la
+                 galerie d'Orleans, en 1829.jpg" — Public domain
+                 A street bookshop: the customers browsing and buying. Used behind the
+                 hero band on the shop page (.hero-shop).
+
+  suggest.jpg    Woman and Child looking at a Picture Book
+                 Jacob de Gheyn II (1565-1629)
+                 Source: Wikimedia Commons, "Jacob de Gheyn (II) - Woman and Child
+                 looking at a Picture Book - WGA08699.jpg" — Public domain
+                 One reader showing another a book. Used behind the hero band on the
+                 Suggestions page (.hero-suggest).
+
+The cart page keeps the plain hero (vermeer.jpg — a single person reading), which is
+what the reader asked for there.
+
+Each image sits under a heavy translucent wash in style.css, so page text always keeps
+full contrast — the art is atmosphere, never behind a word.

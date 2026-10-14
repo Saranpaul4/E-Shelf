@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — Admin: On Loan')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('loans')}"></header>
+
+<main>
+    <section class="hero">
+        <div class="hero-text">
+            <p class="eyebrow">Back Office</p>
+            <h2 class="hero-title">On loan</h2>
+            <p class="hero-sub">Every copy the shop has lent out and not yet got back, with the reader
+                holding it and the late fee piling up if it is overdue.</p>
+        </div>
+        <div class="stats">
+            <div class="stat stat-soon">
+                <span class="stat-value" th:text="${loanCount}">0</span>
+                <span class="stat-label">Copies out</span>
+            </div>
+            <div class="stat stat-out">
+                <span class="stat-value" th:text="${overdueCount}">0</span>
+                <span class="stat-label">Overdue</span>
+            </div>
+            <div class="stat">
+                <span class="stat-value"
+                      th:text="|$${#numbers.formatDecimal(feeDue, 1, 'COMMA', 2, 'POINT')}|">$0.00</span>
+                <span class="stat-label">Fees accruing</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Book</th>
+                <th>Held by</th>
+                <th>Copies</th>
+                <th>Due</th>
+                <th>Days late</th>
+                <th>Fee accruing</th>
+                <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="loan : ${loans}">
+                <td data-label="Book" class="cell-title" th:text="${loan.order().book.title}">Clean Code</td>
+                <td data-label="Held by" th:text="${loan.holder()}">reader</td>
+                <td data-label="Copies" th:text="${loan.order().quantity}">1</td>
+                <td data-label="Due"
+                    th:text="${#temporals.format(loan.order().dueDate, 'dd MMM yyyy')}">24 Oct 2026</td>
+                <td data-label="Days late">
+                    <span class="badge badge-out" th:if="${loan.daysOverdue() > 0}"
+                          th:text="|${loan.daysOverdue()} days|">3 days</span>
+                    <span class="hint" th:unless="${loan.daysOverdue() > 0}">On time</span>
+                </td>
+                <td data-label="Fee accruing" class="cell-price"
+                    th:text="|$${#numbers.formatDecimal(loan.lateFee(), 1, 'COMMA', 2, 'POINT')}|">$0.00</td>
+                <td data-label="Status">
+                    <span class="badge badge-out" th:if="${loan.order().overdue}">Overdue</span>
+                    <span class="badge badge-soon" th:unless="${loan.order().overdue}">On rent</span>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(loans)}">
+                <td colspan="7" class="empty">Nothing is out on loan right now — every rental copy is on the shelf.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+</body>
+</html>

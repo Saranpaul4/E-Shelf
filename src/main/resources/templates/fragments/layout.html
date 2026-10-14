@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!--
+    Shared page parts. Every page pulls these in instead of repeating them:
+      ~{fragments/layout :: pagehead('Title')}   -> the <head>
+      ~{fragments/layout :: topbar('books')}     -> the navigation bar
+      ~{fragments/layout :: pageend()}           -> the closing script tag
+-->
+<head th:fragment="pagehead(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">E-Shelf</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600;1,9..144,700&family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <meta name="_csrf" th:content="${_csrf != null} ? ${_csrf.token} : ''">
+    <meta name="_csrf_header" th:content="${_csrf != null} ? ${_csrf.headerName} : ''">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header class="topbar" th:fragment="topbar(active)">
+    <div class="topbar-main">
+        <a class="brand" th:href="${isAdminUser} ? @{/admin/books} : @{/}">
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                </svg>
+            </span>
+            <span class="brand-name">E-Shelf</span>
+        </a>
+
+        <nav class="site-nav" th:if="${isAdminUser}">
+            <a th:href="@{/admin/books}" th:classappend="${active == 'books'} ? 'active'">Books</a>
+            <a th:href="@{/admin/books/upcoming}" th:classappend="${active == 'upcoming'} ? 'active'">Upcoming</a>
+            <a th:href="@{/admin/orders}" th:classappend="${active == 'orders'} ? 'active'">Orders</a>
+            <a th:href="@{/admin/support}" th:classappend="${active == 'support'} ? 'active'">Support</a>
+            <a th:href="@{/admin/team}" th:classappend="${active == 'team'} ? 'active'">Team</a>
+        </nav>
+
+        <nav class="site-nav" th:if="${currentUser != null and !isAdminUser}">
+            <a th:href="@{/shop}" th:classappend="${active == 'shop'} ? 'active'">Shop</a>
+            <a th:href="@{/shop/suggestions}" th:classappend="${active == 'suggestions'} ? 'active'">Suggestions</a>
+            <a th:href="@{/shop/cart}" th:classappend="${active == 'cart'} ? 'active'">
+                Cart<span class="nav-pill" th:if="${cartCount > 0}" th:text="${cartCount}">2</span>
+            </a>
+        </nav>
+    </div>
+
+    <div class="topbar-actions">
+        <a class="btn btn-primary" th:if="${isAdminUser}" th:href="@{/admin/books/new}">Add Book</a>
+        <a class="who" th:if="${me != null}" th:href="@{/profile}" title="My profile">
+            <span class="avatar avatar-tiny">
+                <span class="avatar-letter" th:text="${me.initials}">R</span>
+                <img class="avatar-image" th:if="${me.avatarUrl != null}" th:src="${me.avatarUrl}"
+                     th:alt="|${me.displayName} profile picture|" onerror="this.remove()">
+            </span>
+            <span class="who-name" th:text="${me.displayName}">Ravi Kumar</span>
+        </a>
+        <form th:action="@{/logout}" method="post" th:if="${currentUser != null}">
+            <button type="submit" class="btn btn-topbar">Sign Out</button>
+        </form>
+    </div>
+</header>
+
+<th:block th:fragment="pageend">
+    <!-- Floating support chat: a bot-shaped bubble in the corner that opens the reader's
+         real thread with the librarians. Only signed-in customers get it; admins use the
+         full Support desk page. -->
+    <div class="chat-widget" id="chat-widget"
+         th:attr="data-thread-url=@{/shop/support/thread},data-send-url=@{/shop/support/send}"
+         th:if="${me != null and !isAdminUser}">
+        <section class="chat-widget-panel" id="chat-widget-panel" aria-live="polite">
+            <header class="chat-widget-head">
+                <span class="chat-avatar" aria-hidden="true">E</span>
+                <div class="chat-widget-title">
+                    <strong>E-Shelf helper</strong>
+                    <span class="chat-widget-sub">Ask us anything — a librarian replies here</span>
+                </div>
+                <button type="button" class="chat-widget-close" id="chat-widget-close"
+                        aria-label="Close support chat">&times;</button>
+            </header>
+            <div class="chat-widget-body" id="chat-widget-body"></div>
+            <form class="chat-input" id="chat-widget-form">
+                <textarea rows="2" aria-label="Your message" placeholder="Type your question…"
+                          maxlength="1000" required></textarea>
+                <button type="submit" class="btn btn-primary">Send</button>
+            </form>
+        </section>
+        <button type="button" class="chat-launcher" id="chat-launcher" aria-label="Open support chat">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            </svg>
+        </button>
+    </div>
+
+    <script th:src="@{/js/ui.js}"></script>
+    <script th:src="@{/js/support-chat.js}"></script>
+</th:block>
+
+<!-- One banner for a good message, one for a problem. -->
+<th:block th:fragment="banners">
+    <p class="alert alert-ok" th:if="${shopMessage}" th:text="${shopMessage}"></p>
+    <p class="alert alert-error" th:if="${shopError}" th:text="${shopError}"></p>
+    <p class="alert alert-ok" th:if="${adminMessage}" th:text="${adminMessage}"></p>
+    <p class="alert alert-error" th:if="${adminError}" th:text="${adminError}"></p>
+    <p class="alert alert-ok" th:if="${profileMessage}" th:text="${profileMessage}"></p>
+    <p class="alert alert-error" th:if="${profileError}" th:text="${profileError}"></p>
+</th:block>
+
+<!-- Five stars, however many are filled. Used on the shop cards and review pages. -->
+<span class="stars" th:fragment="stars(filled)" th:attr="aria-label=|${filled} out of 5 stars|">
+    <span class="star" th:each="i : ${#numbers.sequence(1, 5)}" th:classappend="${i <= filled} ? 'on'">&#9733;</span>
+</span>
+
+</body>
+</html>

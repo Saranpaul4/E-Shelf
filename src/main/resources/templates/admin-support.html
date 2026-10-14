@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — Admin: Support')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('support')}"></header>
+
+<main>
+    <section class="hero">
+        <div class="hero-text">
+            <p class="eyebrow">Back Office</p>
+            <h2 class="hero-title">Support desk</h2>
+            <p class="hero-sub">Every question readers have sent, newest first. Threads marked
+                "Awaiting reply" are the ones that still need an answer from you.</p>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-value" th:text="${threadCount}">0</span>
+                <span class="stat-label">Threads</span>
+            </div>
+            <div class="stat stat-out">
+                <span class="stat-value" th:text="${awaitingCount}">0</span>
+                <span class="stat-label">Awaiting reply</span>
+            </div>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/layout :: banners}"></div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Reader</th>
+                <th>Latest message</th>
+                <th>Messages</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="t : ${threads}">
+                <td data-label="Reader" class="cell-title">
+                    <span th:text="${t.name}">Ravi Kumar</span>
+                    <span class="profile-handle" th:text="|@${t.username}|">@reader</span>
+                </td>
+                <td data-label="Latest message">
+                    <span class="chat-preview" th:text="${t.lastBody}">How do I return a book?</span>
+                    <span class="chat-when" th:if="${t.lastAt != null}"
+                          th:text="${#temporals.format(t.lastAt, 'd MMM, HH:mm')}">1 Oct, 09:12</span>
+                </td>
+                <td data-label="Messages" th:text="${t.messageCount}">3</td>
+                <td data-label="Status">
+                    <span class="badge" th:classappend="${t.awaitingReply} ? 'badge-out' : 'badge-ok'"
+                          th:text="${t.awaitingReply} ? 'Awaiting reply' : 'Answered'">Awaiting reply</span>
+                </td>
+                <td data-label="Open" class="actions">
+                    <a class="btn btn-small btn-primary" th:href="@{/admin/support/thread(user=${t.username})}">Open</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(threads)}">
+                <td colspan="5" class="empty">No readers have contacted support yet.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+</body>
+</html>

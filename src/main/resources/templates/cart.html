@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — Cart')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('cart')}"></header>
+
+<main>
+    <section class="hero">
+        <div class="hero-text">
+            <p class="eyebrow">Your Basket</p>
+            <h2 class="hero-title">Cart</h2>
+            <p class="hero-sub">Rentals are due back in <span th:text="${rentalDays}">14</span> days.
+                Checkout takes the copies off the shelf straight away.</p>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-value" th:text="${cartCount}">0</span>
+                <span class="stat-label">Copies</span>
+            </div>
+            <div class="stat stat-ok">
+                <span class="stat-value" th:text="|$${#numbers.formatDecimal(grandTotal, 1, 'COMMA', 2, 'POINT')}|">$0.00</span>
+                <span class="stat-label">Total</span>
+            </div>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/layout :: banners}"></div>
+
+    <p class="alert alert-error" th:if="${empty}">Nothing in the cart yet.</p>
+
+    <div th:if="${!empty}">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Type</th>
+                    <th>Each</th>
+                    <th>Copies</th>
+                    <th>Line total</th>
+                    <th>Shelf</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${items}">
+                    <td data-label="Book" class="cell-title">
+                        <a class="link" th:href="@{/shop/book/{id}(id=${item.book().id})}" th:text="${item.book().title}">Clean Code</a>
+                    </td>
+                    <td data-label="Type">
+                        <span class="badge"
+                              th:classappend="${item.type().name() == 'BUY'} ? 'badge-ok' : 'badge-soon'"
+                              th:text="${item.type().label}">Buy</span>
+                    </td>
+                    <td data-label="Each" class="cell-price"
+                        th:text="|$${#numbers.formatDecimal(item.unitPrice(), 1, 'COMMA', 2, 'POINT')}|">$6.99</td>
+                    <td data-label="Copies">
+                        <form th:action="@{/shop/cart/update}" method="post" class="qty-form">
+                            <input type="hidden" name="bookId" th:value="${item.book().id}">
+                            <input type="number" name="quantity" th:value="${item.quantity()}" min="0" max="10">
+                            <button type="submit" class="btn btn-small">Set</button>
+                        </form>
+                    </td>
+                    <td data-label="Line total" class="cell-price"
+                        th:text="|$${#numbers.formatDecimal(item.lineTotal(), 1, 'COMMA', 2, 'POINT')}|">$13.98</td>
+                    <td data-label="Shelf">
+                        <span class="badge badge-out" th:if="${item.moreThanStock()}"
+                              th:text="|Only ${item.availableStock()} left|">Only 2 left</span>
+                        <span class="hint" th:unless="${item.moreThanStock()}"
+                              th:text="|${item.availableStock()} on shelf|">5 on shelf</span>
+                    </td>
+                    <td data-label="Actions" class="actions">
+                        <form th:action="@{/shop/cart/remove}" method="post">
+                            <input type="hidden" name="bookId" th:value="${item.book().id}">
+                            <button type="submit" class="btn btn-small btn-danger">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="checkout-bar">
+            <div class="checkout-total">
+                <span class="checkout-label">You pay</span>
+                <span class="checkout-value"
+                      th:text="|$${#numbers.formatDecimal(grandTotal, 1, 'COMMA', 2, 'POINT')}|">$0.00</span>
+            </div>
+            <a class="btn btn-primary" th:href="@{/shop/checkout}">Pay now</a>
+            <form th:action="@{/shop/cart/clear}" method="post">
+                <button type="submit" class="btn btn-ghost">Empty cart</button>
+            </form>
+        </div>
+    </div>
+
+    <section class="rental-returns" th:if="${!#lists.isEmpty(rentalRows)}">
+        <h3 class="section-title">Rentals you can hand back</h3>
+        <p class="section-note">Returning puts the copy back on the shelf straight away. An on-time
+            return is free; a late one costs $<span th:text="${lateFeePerDay}">0.50</span> per day per
+            copy, which you pay through Razorpay before the book is signed back in.</p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Book</th>
+                    <th>Copies</th>
+                    <th>Due</th>
+                    <th>Days late</th>
+                    <th>Late fee</th>
+                    <th>Return</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="row : ${rentalRows}">
+                    <td data-label="Book" class="cell-title">
+                        <a class="link" th:href="@{/shop/book/{id}(id=${row.order().book.id})}"
+                           th:text="${row.order().book.title}">Clean Code</a>
+                    </td>
+                    <td data-label="Copies" th:text="${row.order().quantity}">1</td>
+                    <td data-label="Due"
+                        th:text="${#temporals.format(row.order().dueDate, 'dd MMM yyyy')}">24 Oct 2026</td>
+                    <td data-label="Days late">
+                        <span class="badge badge-out" th:if="${row.daysOverdue() > 0}"
+                              th:text="|${row.daysOverdue()} days|">3 days</span>
+                        <span class="hint" th:unless="${row.daysOverdue() > 0}">On time</span>
+                    </td>
+                    <td data-label="Late fee" class="cell-price"
+                        th:text="|$${#numbers.formatDecimal(row.lateFee(), 1, 'COMMA', 2, 'POINT')}|">$0.00</td>
+                    <td data-label="Return" class="actions">
+                        <form th:unless="${row.needsPayment()}"
+                              th:action="@{/shop/orders/{id}/return(id=${row.order().id})}" method="post">
+                            <button type="submit" class="btn btn-small btn-primary">Return</button>
+                        </form>
+                        <button type="button" th:if="${row.needsPayment()}"
+                                class="btn btn-small btn-primary pay-return-btn"
+                                th:attr="data-order-id=${row.order().id}"
+                                th:text="|Return &amp; pay $${#numbers.formatDecimal(row.lateFee(), 1, 'COMMA', 2, 'POINT')}|">
+                            Return &amp; pay $1.50</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="hint" id="return-status">&nbsp;</p>
+    </section>
+
+    <a class="btn btn-ghost" th:href="@{/shop}">Keep shopping</a>
+</main>
+
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js" th:if="${!#lists.isEmpty(rentalRows)}"></script>
+<script th:inline="javascript" th:if="${!#lists.isEmpty(rentalRows)}">
+    var RZP_KEY = /*[[${keyId}]]*/ 'rzp_test_REPLACE_ME';
+    var CSRF_NAME = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
+    var CSRF_TOKEN = /*[[${_csrf.token}]]*/ '';
+
+    (function () {
+        var status = document.getElementById('return-status');
+        if (!status) return;
+        function say(t) { status.textContent = t; }
+        function headers(extra) {
+            var h = {};
+            h[CSRF_NAME] = CSRF_TOKEN;
+            if (extra) { for (var k in extra) h[k] = extra[k]; }
+            return h;
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll('.pay-return-btn'), function (button) {
+            button.addEventListener('click', function () {
+                if (typeof Razorpay !== 'function') {
+                    say('Razorpay could not load. Check the connection and the test keys.');
+                    return;
+                }
+                var id = button.getAttribute('data-order-id');
+                button.disabled = true;
+                say('Preparing your late fee...');
+                fetch('/shop/rentals/' + id + '/create-order', { method: 'POST', headers: headers() })
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        if (!data.success) {
+                            button.disabled = false;
+                            say(data.message || 'Could not start the payment.');
+                            return;
+                        }
+                        openRazorpay(id, data);
+                    })
+                    .catch(function () {
+                        button.disabled = false;
+                        say('Network error while preparing the payment.');
+                    });
+            });
+        });
+
+        function openRazorpay(id, order) {
+            var rzp = new Razorpay({
+                key: RZP_KEY,
+                amount: order.amount,
+                currency: 'INR',
+                name: 'E-Shelf',
+                description: 'Late fee for a returned rental',
+                order_id: order.orderId,
+                handler: function (resp) { confirmReturn(id, resp); },
+                theme: { color: '#7a4a24' }
+            });
+            rzp.on('payment.failed', function () {
+                var btn = document.querySelector('.pay-return-btn[data-order-id="' + id + '"]');
+                if (btn) btn.disabled = false;
+                say('That payment failed, so nothing was charged and the book is still out.');
+            });
+            rzp.open();
+        }
+
+        function confirmReturn(id, resp) {
+            say('Confirming your payment...');
+            fetch('/shop/rentals/' + id + '/confirm-return', {
+                method: 'POST',
+                headers: headers({ 'Content-Type': 'application/json' }),
+                body: JSON.stringify({
+                    razorpay_order_id: resp.razorpay_order_id,
+                    razorpay_payment_id: resp.razorpay_payment_id,
+                    razorpay_signature: resp.razorpay_signature
+                })
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.success) {
+                        say(data.message || 'Returned.');
+                        window.location.href = data.redirect || '/shop/orders';
+                    } else {
+                        var btn = document.querySelector('.pay-return-btn[data-order-id="' + id + '"]');
+                        if (btn) btn.disabled = false;
+                        say(data.message || 'We could not confirm that payment.');
+                    }
+                })
+                .catch(function () {
+                    say('Network error while confirming the payment.');
+                });
+        }
+    })();
+</script>
+</body>
+</html>

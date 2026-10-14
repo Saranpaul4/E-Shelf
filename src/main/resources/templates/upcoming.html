@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — Upcoming')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('upcoming')}"></header>
+
+<main>
+    <section class="hero">
+        <div class="hero-text">
+            <p class="eyebrow">On the Way</p>
+            <h2 class="hero-title">Books arriving soon</h2>
+            <p class="hero-sub">These titles are on order. When one reaches the shelf, mark it as arrived
+                and it moves into the catalog where customers can buy or rent it.</p>
+        </div>
+        <div class="stats">
+            <div class="stat stat-soon">
+                <span class="stat-value" th:text="${#lists.size(upcoming)}">0</span>
+                <span class="stat-label">Upcoming</span>
+            </div>
+            <div class="stat" th:if="${!#lists.isEmpty(upcoming)}">
+                <span class="stat-value stat-value-date"
+                      th:text="${#temporals.format(upcoming[0].arrivalDate, 'MMM d')}">—</span>
+                <span class="stat-label">Next arrival</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-head">
+        <h3>Arrivals</h3>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Buy</th>
+                <th>Arrives</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="book : ${upcoming}">
+                <td data-label="Title" class="cell-title">
+                    <span class="row-cover">
+                        <span class="cover-letter" th:text="${#strings.toUpperCase(#strings.substring(book.title, 0, 1))}">C</span>
+                        <img class="cover-image" th:if="${book.hasCover}" th:src="${book.coverMedium}"
+                             th:alt="|Cover of ${book.title}|" loading="lazy" onerror="this.remove()">
+                    </span>
+                    <span th:text="${book.title}"></span>
+                </td>
+                <td data-label="Author" th:text="${book.author}"></td>
+                <td data-label="Buy" class="cell-price"
+                    th:text="|$${#numbers.formatDecimal(book.price, 1, 'COMMA', 2, 'POINT')}|"></td>
+                <td data-label="Arrives">
+                    <span class="badge badge-soon"
+                          th:text="${#temporals.format(book.arrivalDate, 'MMM d, yyyy')}"></span>
+                </td>
+                <td data-label="Actions" class="actions">
+                    <form th:action="@{/admin/books/{id}/arrive(id=${book.id})}" method="post">
+                        <button type="submit" class="btn btn-small btn-primary">Mark arrived</button>
+                    </form>
+                    <a class="btn btn-small" th:href="@{/admin/books/edit/{id}(id=${book.id})}">Edit</a>
+                    <form th:action="@{/admin/books/delete/{id}(id=${book.id})}" method="post"
+                          onsubmit="return confirm('Delete this book?');">
+                        <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(upcoming)}">
+                <td colspan="5" class="empty">Nothing on order — add a book with a future arrival date.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+</body>
+</html>

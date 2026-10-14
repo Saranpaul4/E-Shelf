@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — Admin: Books')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('books')}"></header>
+
+<main>
+    <section class="hero">
+        <div class="hero-text">
+            <p class="eyebrow">Back Office</p>
+            <h2 class="hero-title">Catalog the shop sells</h2>
+            <p class="hero-sub">Prices and stock you set here are what customers see in the shop.</p>
+            <a class="btn btn-ghost" th:href="@{/admin/loans}">On Loan &rarr;</a>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-value" th:text="${totalBooks}">0</span>
+                <span class="stat-label">Total</span>
+            </div>
+            <div class="stat stat-ok">
+                <span class="stat-value" th:text="${availableBooks}">0</span>
+                <span class="stat-label">In stock</span>
+            </div>
+            <div class="stat stat-out">
+                <span class="stat-value" th:text="${soldOutBooks}">0</span>
+                <span class="stat-label">Sold out</span>
+            </div>
+            <div class="stat stat-soon">
+                <span class="stat-value" th:text="${upcomingCount}">0</span>
+                <span class="stat-label">Upcoming</span>
+            </div>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/layout :: banners}"></div>
+
+    <div class="section-head">
+        <h3>Catalog</h3>
+        <form class="search" th:action="@{/admin/books}" method="get">
+            <input type="text" name="q" th:value="${q}" placeholder="Search by title or author...">
+            <select name="genre" onchange="this.form.submit()">
+                <option value="" th:selected="${activeGenre == null}">All genres</option>
+                <option th:each="genre : ${genres}" th:value="${genre.slug}"
+                        th:selected="${activeGenre == genre}" th:text="${genre.label}">Comics</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a th:if="${(!#strings.isEmpty(q)) or activeGenre != null}" th:href="@{/admin/books}" class="link">Clear</a>
+        </form>
+    </div>
+
+    <p class="count" th:text="|${#lists.size(books)} book(s)|"></p>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>Language</th>
+                <th>ISBN</th>
+                <th>Year</th>
+                <th>Buy</th>
+                <th>Rent</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="book : ${books}">
+                <td data-label="Title" class="cell-title">
+                    <span class="row-cover">
+                        <span class="cover-letter" th:text="${#strings.toUpperCase(#strings.substring(book.title, 0, 1))}">C</span>
+                        <img class="cover-image" th:if="${book.hasCover}" th:src="${book.coverMedium}"
+                             th:alt="|Cover of ${book.title}|" loading="lazy" onerror="this.remove()">
+                    </span>
+                    <span th:text="${book.title}">Clean Code</span>
+                    <span class="multi-tag" th:if="${!#strings.isEmpty(book.workKey)}"
+                          th:title="|Editions sharing the key ${book.workKey}|"
+                          th:text="|${book.workKey}|">alchemist</span>
+                </td>
+                <td data-label="Author" th:text="${book.author}"></td>
+                <td data-label="Genre"><span class="badge badge-soon" th:text="${book.genre.label}">Comics</span></td>
+                <td data-label="Language" th:text="${book.language}">English</td>
+                <td data-label="ISBN" th:text="${book.isbn}"></td>
+                <td data-label="Year" th:text="${book.publishedYear}"></td>
+                <td data-label="Buy" class="cell-price"
+                    th:text="|$${#numbers.formatDecimal(book.price, 1, 'COMMA', 2, 'POINT')}|"></td>
+                <td data-label="Rent" class="cell-price"
+                    th:text="|$${#numbers.formatDecimal(book.rentalPrice, 1, 'COMMA', 2, 'POINT')}|"></td>
+                <td data-label="Stock" th:text="${book.stockQuantity}"></td>
+                <td data-label="Status">
+                    <span class="badge"
+                          th:classappend="${book.inStock} ? 'badge-ok' : 'badge-out'"
+                          th:text="${book.inStock} ? 'In stock' : 'Sold out'"></span>
+                </td>
+                <td data-label="Actions" class="actions">
+                    <a class="btn btn-small" th:href="@{/admin/books/edit/{id}(id=${book.id})}">Edit</a>
+                    <form th:action="@{/admin/books/delete/{id}(id=${book.id})}" method="post"
+                          onsubmit="return confirm('Delete this book?');">
+                        <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(books)}">
+                <td colspan="11" class="empty"
+                    th:text="${q != null and !#strings.isEmpty(q)} ? 'No books match your search.' : 'The shelf is empty — add your first book.'"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+</body>
+</html>

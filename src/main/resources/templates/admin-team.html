@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — Admin: Team')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('team')}"></header>
+
+<main>
+    <section class="hero">
+        <div class="hero-text">
+            <p class="eyebrow">Back Office</p>
+            <h2 class="hero-title">Who is at the desk</h2>
+            <p class="hero-sub">An admin stays online for <strong th:text="${onlineWindowMinutes}">5</strong>
+                minutes after their last click, and drops off the moment they sign out.</p>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-value" th:text="${totalAdmins}">0</span>
+                <span class="stat-label">Admins</span>
+            </div>
+            <div class="stat stat-ok">
+                <span class="stat-value" th:text="${onlineAdmins}">0</span>
+                <span class="stat-label">Online</span>
+            </div>
+            <div class="stat stat-out">
+                <span class="stat-value" th:text="${offlineAdmins}">0</span>
+                <span class="stat-label">Offline</span>
+            </div>
+        </div>
+    </section>
+
+    <div class="section-head">
+        <h3>Admin accounts</h3>
+        <span class="count">Live board — refreshes by itself every 30 seconds.</span>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>Username</th>
+                <th>Full name</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Last seen</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="row : ${team}">
+                <td data-label="Username" class="cell-title" th:text="${row.user().username}">admin</td>
+                <td data-label="Full name" th:text="${row.user().fullName}">Ada Librarian</td>
+                <td data-label="Email" th:text="${row.user().email}">ada@eshelf.test</td>
+                <td data-label="Status">
+                    <span class="badge"
+                          th:classappend="${row.online()} ? 'badge-ok badge-live' : 'badge-offline'"
+                          th:text="${row.online()} ? 'Online' : 'Offline'">Online</span>
+                </td>
+                <td data-label="Last seen"
+                    th:text="${row.lastSeen() == null} ? 'Not seen since the app started'
+                        : ${#temporals.format(row.lastSeen(), 'd MMM, h:mm a')}">Not seen</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(team)}">
+                <td colspan="5" class="empty">No admin accounts — the back office is empty.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<script>
+    setTimeout(function () { window.location.reload(); }, 30000);
+</script>
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pagehead('E-Shelf — Shop')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('shop')}"></header>
+
+<main>
+    <section class="hero hero-shop">
+        <div class="hero-text">
+            <p class="eyebrow">Customer Shop</p>
+            <h2 class="hero-title" th:text="${currentUser}">Reader</h2>
+            <p class="hero-sub">Buy a copy to keep, or rent one for 14 days. Add it to the cart and pay at the end.</p>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-value" th:text="${totalBooks}">0</span>
+                <span class="stat-label">Available books</span>
+            </div>
+            <div class="stat stat-soon">
+                <span class="stat-value" th:text="${cartCount}">0</span>
+                <span class="stat-label">In cart</span>
+            </div>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/layout :: banners}"></div>
+
+    <div class="section-head">
+        <h3>Shelves</h3>
+        <form class="search" th:action="@{/shop}" method="get">
+            <input type="hidden" name="by" th:if="${groupBy != 'genre'}" th:value="${groupBy}">
+            <select th:if="${groupBy == 'genre'}" name="genre" onchange="this.form.submit()">
+                <option value="" th:selected="${activeGenre == null}">All genres</option>
+                <option th:each="genre : ${genres}" th:value="${genre.slug}" th:selected="${activeGenre == genre}"
+                        th:text="${genre.label}">Comics</option>
+            </select>
+            <select th:if="${groupBy == 'author'}" name="author" onchange="this.form.submit()">
+                <option value="" th:selected="${activeAuthor == null}">All authors</option>
+                <option th:each="name : ${authors}" th:value="${name}" th:selected="${name == activeAuthor}"
+                        th:text="${name}">George Orwell</option>
+            </select>
+            <select th:if="${groupBy == 'language'}" name="language" onchange="this.form.submit()">
+                <option value="" th:selected="${activeLanguage == null}">All languages</option>
+                <option th:each="name : ${languages}" th:value="${name}" th:selected="${name == activeLanguage}"
+                        th:text="${name}">Tamil</option>
+            </select>
+            <input type="text" name="q" th:value="${q}" placeholder="Search by title or author...">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a th:if="${(!#strings.isEmpty(q)) or activeGenre != null or activeAuthor != null or activeLanguage != null}"
+               th:href="@{/shop}" class="link">Clear</a>
+        </form>
+    </div>
+
+    <nav class="filters genre-chips">
+        <a class="filter" th:href="@{/shop(q=${q})}"
+           th:classappend="${groupBy == 'genre'} ? 'active'">By genre</a>
+        <a class="filter" th:href="@{/shop(by='author', q=${q})}"
+           th:classappend="${groupBy == 'author'} ? 'active'">By author</a>
+        <a class="filter" th:href="@{/shop(by='language', q=${q})}"
+           th:classappend="${groupBy == 'language'} ? 'active'">By language</a>
+
+        <th:block th:if="${groupBy != 'genre'}">
+            <span class="chip-sep" aria-hidden="true"></span>
+            <span class="shelf-note" th:if="${groupBy == 'author'}"
+                  th:text="|${#lists.size(authors)} author(s) on the shelf|">35 author(s) on the shelf</span>
+            <span class="shelf-note" th:if="${groupBy == 'language'}"
+                  th:text="|${#lists.size(languages)} language(s) on the shelf|">9 language(s) on the shelf</span>
+        </th:block>
+    </nav>
+
+    <p class="count" th:text="|${shownBooks} title(s) to browse|"></p>
+
+    <section class="shelf" th:each="shelf : ${shelves}">
+        <div class="shelf-head">
+            <h4 class="shelf-title" th:text="${shelf.label}">Comics</h4>
+            <span class="shelf-count" th:text="|${#lists.size(shelf.books())} title(s)|">6 title(s)</span>
+        </div>
+
+        <div class="book-grid">
+            <article class="book-card" th:each="book : ${shelf.books()}"
+                     th:with="ed=${editions.get(book.id)}"
+                     th:attr="data-large=${book.coverLarge},data-title=${book.title},data-letter=${#strings.toUpperCase(#strings.substring(book.title, 0, 1))}">
+                <div class="book-cover" th:classappend="${book.inStock} ? '' : 'book-cover-dim'">
+                    <span class="cover-letter" th:text="${#strings.toUpperCase(#strings.substring(book.title, 0, 1))}">C</span>
+                    <img class="cover-image" th:if="${book.hasCover}" th:src="${book.coverMedium}"
+                         th:alt="|Cover of ${book.title}|" loading="lazy" onerror="this.remove()">
+                </div>
+                <div class="book-info">
+                    <h4 class="book-name" th:text="${book.title}">Clean Code</h4>
+                    <p class="book-author" th:text="${book.author}">Robert C. Martin</p>
+                    <p class="book-year">
+                        <span th:text="${book.publishedYear}">2008</span>
+                        <span class="lang-tag" th:if="${book.language != null and book.language != 'English'}"
+                              th:text="${book.language}">Tamil</span>
+                    </p>
+
+                    <p class="multi-line" th:if="${ed != null}">
+                        <span class="multi-tag" th:text="|${ed.languageCount()} languages|">3 languages</span>
+                        <span class="multi-note" th:text="|also in ${ed.otherLanguages()}|">also in French, Spanish</span>
+                    </p>
+
+                    <div class="price-row">
+                        <span class="price-chip" th:text="|Buy $${#numbers.formatDecimal(book.price, 1, 'COMMA', 2, 'POINT')}|">Buy $44.99</span>
+                        <span class="price-chip price-chip-rent"
+                              th:text="|Rent $${#numbers.formatDecimal(book.rentalPrice, 1, 'COMMA', 2, 'POINT')}|">Rent $6.99</span>
+                    </div>
+
+                    <p class="stock-line" th:if="${book.inStock}" th:text="|${book.stockQuantity} copy/copies ready|"></p>
+                    <p class="stock-line stock-line-out" th:unless="${book.inStock}">
+                        Sold out — check back soon
+                        <a class="stock-alt" th:if="${ed != null and ed.hasStockElsewhere()}"
+                           th:href="@{/shop/book/{id}(id=${book.id})}"
+                           th:text="|but ${ed.inStockOthers().size()} other edition(s) in stock|">but 2 other edition(s) in stock</a>
+                    </p>
+
+                    <p class="opinion-line" th:with="op=${opinions.get(book.id)}">
+                        <span th:replace="~{fragments/layout :: stars(${op == null} ? 0 : ${op.fullStars()})}"></span>
+                        <span class="opinion-score" th:if="${op != null and op.hasRatings()}"
+                              th:text="|${op.averageText()} (${op.reviewCount})|">4.5 (3)</span>
+                        <span class="opinion-none" th:unless="${op != null and op.hasRatings()}">Not rated yet</span>
+                        <span class="opinion-likes" th:if="${op != null and op.likes() > 0}"
+                              th:text="|&#9829; ${op.likes()}|">&#9829; 4</span>
+                    </p>
+
+                    <div class="card-actions">
+                        <form th:action="@{/shop/cart/add}" method="post" th:if="${book.inStock}">
+                            <input type="hidden" name="bookId" th:value="${book.id}">
+                            <!-- Buy no longer posts on its own. It opens the confirm popup,
+                                 which posts for it once the reader has read the summary. -->
+                            <button type="button" class="btn btn-small btn-primary buy-check"
+                                    th:data-title="${book.title}"
+                                    th:data-author="${book.author}"
+                                    th:data-year="${book.publishedYear}"
+                                    th:data-genre="${book.genre.label}"
+                                    th:data-language="${book.language}"
+                                    th:data-price="${book.price}"
+                                    th:data-rental="${book.rentalPrice}"
+                                    th:data-stock="${book.stockQuantity}"
+                                    th:data-summary="${book.summary}"
+                                    th:data-cover="${book.hasCover} ? ${book.coverLarge} : ''">Buy</button>
+                            <button type="submit" name="action" value="RENT" class="btn btn-small">Rent</button>
+                        </form>
+                        <a class="btn btn-small btn-ghost" th:href="@{/shop/book/{id}(id=${book.id})}">Details</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <div class="table-wrap" th:if="${#lists.isEmpty(shelves)}">
+        <p class="empty"
+           th:text="${!#strings.isEmpty(q)} ? 'No books match your search.' : 'The shop is empty right now.'"></p>
+    </div>
+
+    <!-- ui.js fills this single popup with whichever book the cursor is on. -->
+    <div class="cover-pop" id="coverPop" hidden>
+        <div class="cover-pop-media" id="coverPopMedia"></div>
+        <p class="cover-pop-caption" id="coverPopCaption"></p>
+    </div>
+
+    <!-- buy-confirm.js fills this one dialog and submits the card's form when confirmed.
+         Nothing is put in the cart until the reader presses Add to cart. -->
+    <div class="buy-modal" id="buy-modal" hidden>
+        <div class="buy-modal-backdrop" data-buy-close></div>
+        <section class="buy-modal-card" role="dialog" aria-modal="true" aria-labelledby="buy-modal-title">
+            <header class="buy-modal-head">
+                <h4 id="buy-modal-title">Before you buy</h4>
+                <button type="button" class="buy-modal-x" data-buy-close aria-label="Close">&times;</button>
+            </header>
+
+            <div class="buy-modal-body">
+                <div class="buy-modal-cover">
+                    <span class="cover-letter" id="buy-cover-letter">C</span>
+                    <img class="cover-image" id="buy-cover" alt="" loading="lazy" onerror="this.remove()">
+                </div>
+
+                <div class="buy-modal-info">
+                    <p class="buy-modal-name" id="buy-name">Clean Code</p>
+                    <p class="buy-modal-meta" id="buy-meta">Robert C. Martin &middot; 2008</p>
+                    <p class="buy-modal-tags" id="buy-tags">Technology &middot; English</p>
+                    <p class="buy-modal-prices">
+                        <span class="price-chip" id="buy-price">Buy $44.99</span>
+                        <span class="price-chip price-chip-rent" id="buy-rental">Rent $6.99</span>
+                    </p>
+
+                    <div class="buy-modal-blurb">
+                        <h5>Summary</h5>
+                        <p id="buy-summary">No summary added yet.</p>
+                    </div>
+
+                    <p class="buy-modal-stock" id="buy-stock">4 copy/copies ready</p>
+                </div>
+            </div>
+
+            <footer class="buy-modal-actions">
+                <button type="button" class="btn btn-ghost" data-buy-close>Cancel</button>
+                <button type="button" class="btn btn-primary" id="buy-confirm">Add to cart</button>
+            </footer>
+        </section>
+    </div>
+
+    <script th:src="@{/js/buy-confirm.js}"></script>
+</main>
+<th:block th:replace="~{fragments/layout :: pageend}"></th:block>
+</body>
+</html>

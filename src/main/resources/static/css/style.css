@@ -1,0 +1,2408 @@
+/* ==========================================================================
+   Library — design system
+   Typography: Poppins (headings) + Inter (body) via Google Fonts
+   ========================================================================== */
+
+:root {
+    --ink: #3b2416;
+    --ink-soft: #6b4a32;
+    --ink-faint: #9a7b60;
+    --line: #e6d5bf;
+    --bg: #f6eee2;
+    --card: #fff8ee;
+
+    --blue: #c6a15b;
+    --blue-deep: #3b2416;
+    --blue-soft: #f3e6c8;
+    --green: #4f7a4a;
+    --green-soft: #e8f0e2;
+    --amber: #a67c2d;
+    --amber-soft: #f7ead0;
+    --violet: #7a5a3a;
+    --violet-soft: #efe4d4;
+    --red: #a33b2b;
+    --red-soft: #f6e4de;
+
+    --gold: #c6a15b;
+    --cream: #f6eee2;
+    --brown: #3b2416;
+
+    --radius: 14px;
+    --shadow-sm: 0 1px 2px rgba(59, 36, 22, 0.08);
+    --shadow-md: 0 6px 18px rgba(59, 36, 22, 0.12);
+    --shadow-lg: 0 14px 34px rgba(59, 36, 22, 0.18);
+
+    --font-head: "Poppins", "Segoe UI", sans-serif;
+    --font-body: "Inter", "Segoe UI", Arial, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: var(--font-body);
+    color: var(--ink);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+
+    /* A reader from an out-of-copyright painting, tiled very faintly across the whole
+       page. A 94% cream wash sits over it, so only a hint shows through the gaps and
+       the solid cards keep every word fully legible. */
+    background-color: var(--bg);
+    background-image:
+        linear-gradient(rgba(246, 238, 226, 0.94), rgba(246, 238, 226, 0.94)),
+        url("/img/bg/boutrois.jpg");
+    background-repeat: no-repeat, repeat;
+    background-size: cover, 240px auto;
+    background-position: center, center;
+    background-attachment: fixed, fixed;
+}
+
+/* ---- Top navigation -------------------------------------------------- */
+
+.topbar {
+    /* The old woman reading (Circle of Gerrit Dou) behind a near-solid dark wash, so
+       the bar gains depth but the cream brand and nav stay high-contrast. */
+    background:
+        linear-gradient(120deg, rgba(42, 24, 16, 0.94), rgba(59, 36, 22, 0.93) 55%, rgba(92, 58, 36, 0.95)),
+        url("/img/bg/dou.jpg") center 30% / cover no-repeat;
+    color: var(--cream);
+    border-bottom: 2px solid var(--gold);
+    padding: 14px clamp(16px, 4vw, 40px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.topbar-main {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.brand-mark {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #e8c97a, #c6a15b);
+    color: #2a1810;
+    box-shadow: 0 4px 12px rgba(198, 161, 91, 0.45);
+    transition: transform 0.18s ease;
+}
+
+.brand:hover .brand-mark {
+    transform: rotate(-6deg) scale(1.06);
+}
+
+.brand-mark svg {
+    width: 18px;
+    height: 18px;
+}
+
+.brand-name {
+    font-family: "Fraunces", Georgia, serif;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 23px;
+    letter-spacing: 0.3px;
+    color: #f6eee2;
+}
+
+.site-nav {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    padding: 4px;
+    background: rgba(246, 238, 226, 0.08);
+    border: 1px solid rgba(198, 161, 91, 0.38);
+    border-radius: 999px;
+}
+
+.site-nav a {
+    color: rgba(246, 238, 226, 0.82);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14.5px;
+    padding: 7px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+}
+
+.site-nav a:hover {
+    color: #fff8ee;
+    background: rgba(198, 161, 91, 0.28);
+    transform: translateY(-1px);
+}
+
+.site-nav a:active,
+.site-nav a.is-pressing {
+    transform: translateY(1px) scale(0.97);
+    color: #2a1810;
+    background: #e8c97a;
+    box-shadow: inset 0 2px 6px rgba(42, 24, 16, 0.28);
+}
+
+.site-nav a:focus-visible {
+    outline: 2px solid #c6a15b;
+    outline-offset: 2px;
+}
+
+.site-nav a.active {
+    color: #2a1810;
+    background: linear-gradient(180deg, #e8c97a, #c6a15b);
+    box-shadow: 0 2px 8px rgba(198, 161, 91, 0.45);
+}
+
+.topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-topbar {
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+}
+
+.btn-topbar:hover {
+    background: rgba(255, 255, 255, 0.26);
+    box-shadow: none;
+}
+
+/* ---- The signed in person, in the top bar ------------------------------ */
+
+.who {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 13.5px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    padding: 5px 12px 5px 6px;
+    border-radius: 999px;
+    text-decoration: none;
+}
+
+.who:hover {
+    background: rgba(255, 255, 255, 0.24);
+}
+
+.who-name {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Round picture with a letter tile behind it, so an empty profile still looks finished. */
+.avatar {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(150deg, #e8c97a, #a67c2d);
+    color: #2a1810;
+    font-family: var(--font-head);
+    font-weight: 700;
+}
+
+.avatar-letter {
+    grid-area: 1 / 1;
+}
+
+.avatar-image {
+    grid-area: 1 / 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-tiny {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+}
+
+.avatar-big {
+    width: 108px;
+    height: 108px;
+    font-size: 38px;
+    border: 3px solid rgba(255, 255, 255, 0.5);
+}
+
+/* ---- Page layout ------------------------------------------------------ */
+
+main {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 28px clamp(16px, 4vw, 40px) 64px;
+}
+
+/* ---- Hero -------------------------------------------------------------- */
+
+.hero {
+    /* Girl reading a letter (Vermeer) behind the existing brown-to-gold band. The wash
+       stays 90%+ opaque end to end, so the white title and stat numbers keep the same
+       contrast they had on the flat gradient. */
+    background:
+        linear-gradient(120deg, rgba(42, 24, 16, 0.97), rgba(92, 58, 36, 0.92) 48%, rgba(198, 161, 91, 0.9)),
+        url("/img/bg/vermeer.jpg") right center / cover no-repeat;
+    border-radius: var(--radius);
+    padding: clamp(24px, 4vw, 40px);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    flex-wrap: wrap;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 28px;
+}
+
+/* Shop: a 19th-century bookshop (people buying). Suggestions: an adult showing a child
+   a picture book (one reader suggesting to another). Both reuse the same dark wash as
+   the plain hero, only swapping the painting underneath — text contrast is unchanged. */
+.hero-shop {
+    background:
+        linear-gradient(120deg, rgba(42, 24, 16, 0.95), rgba(59, 36, 22, 0.9) 55%, rgba(92, 58, 36, 0.9)),
+        url("/img/bg/shop.jpg") center / cover no-repeat;
+}
+
+.hero-suggest {
+    background:
+        linear-gradient(120deg, rgba(42, 24, 16, 0.97), rgba(92, 58, 36, 0.92) 48%, rgba(198, 161, 91, 0.9)),
+        url("/img/bg/suggest.jpg") right center / cover no-repeat;
+}
+
+.eyebrow {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 8px;
+}
+
+.hero-title {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: clamp(24px, 3.4vw, 34px);
+    line-height: 1.2;
+    margin-bottom: 8px;
+}
+
+.hero-sub {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 46ch;
+}
+
+/* ---- Stat cards (inside hero) ------------------------------------------ */
+
+.stats {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.stat {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(4px);
+    border-radius: 12px;
+    padding: 14px 22px;
+    min-width: 96px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.stat-value {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 26px;
+    line-height: 1.1;
+}
+
+.stat-value-date { font-size: 21px; }
+
+.stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.stat-ok .stat-value { color: #e8c97a; }
+.stat-out .stat-value { color: #f3d38a; }
+.stat-soon .stat-value { color: #f6eee2; }
+
+/* ---- Section heading + search ------------------------------------------ */
+
+.section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 26px 0 14px;
+}
+
+.section-head h3 {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 19px;
+}
+
+.section-head-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.search {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.search input {
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    font: inherit;
+    min-width: 220px;
+    background: var(--card);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.search input:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(198, 161, 91, 0.28);
+}
+
+.link {
+    color: var(--blue);
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    align-self: center;
+}
+
+.link:hover { text-decoration: underline; }
+
+.count {
+    color: var(--ink-faint);
+    font-size: 13.5px;
+    font-weight: 500;
+    margin-bottom: 12px;
+}
+
+/* ---- Buttons ------------------------------------------------------------ */
+
+.btn {
+    display: inline-block;
+    font: inherit;
+    font-weight: 600;
+    font-size: 14.5px;
+    padding: 9px 18px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.btn:hover { transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+
+.btn-primary {
+    background: linear-gradient(120deg, #a67c2d, #c6a15b);
+    color: #2a1810;
+    box-shadow: 0 2px 8px rgba(198, 161, 91, 0.4);
+}
+
+.btn-primary:hover { box-shadow: 0 6px 16px rgba(198, 161, 91, 0.5); }
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 8px;
+    background: var(--blue-soft);
+    color: var(--blue);
+}
+
+.btn-small:hover { background: #ead7a8; }
+
+.btn-danger {
+    background: var(--red-soft);
+    color: var(--red);
+}
+
+.btn-danger:hover { background: #fbd9d9; }
+
+.btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border-color: var(--line);
+}
+
+.btn-ghost:hover {
+    background: var(--card);
+    border-color: #d4b98a;
+    box-shadow: var(--shadow-sm);
+}
+
+/* ---- Table --------------------------------------------------------------- */
+
+.table-wrap {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.5px;
+}
+
+thead th {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    text-align: left;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    background: #fafbfe;
+}
+
+tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: middle;
+}
+
+tbody tr:last-child td { border-bottom: none; }
+
+tbody tr { transition: background 0.12s ease; }
+tbody tr:hover { background: #f7f9ff; }
+
+.cell-title {
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.cell-price {
+    font-family: var(--font-head);
+    font-weight: 700;
+    color: var(--blue);
+    font-variant-numeric: tabular-nums;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.empty {
+    text-align: center;
+    color: var(--ink-faint);
+    padding: 36px 16px !important;
+    font-size: 14.5px;
+}
+
+/* ---- Badges --------------------------------------------------------------- */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 4px 11px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.badge::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.badge-ok { background: var(--green-soft); color: var(--green); }
+.badge-out { background: var(--amber-soft); color: var(--amber); }
+.badge-soon { background: var(--violet-soft); color: var(--violet); }
+.badge-offline { background: #ece3d6; color: var(--ink-faint); }
+
+/* The dot on a live status breathes, so the board reads as "now" rather than a snapshot. */
+.badge-live::before {
+    animation: presence-breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes presence-breathe {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.7); }
+}
+
+/* ---- Form pages ------------------------------------------------------------ */
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 26px;
+    max-width: 760px;
+}
+
+.card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+}
+
+.card-head h3 {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 22px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.req { color: var(--red); }
+
+.form-group input,
+.form-group textarea {
+    font: inherit;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff8ee;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-group textarea {
+    resize: vertical;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(198, 161, 91, 0.28);
+    background: #fffdf8;
+}
+
+.hint {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+}
+
+.checkbox-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.checkbox-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--blue);
+    cursor: pointer;
+}
+
+.checkbox-label {
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+/* ---- Filter chips ------------------------------------------------------------- */
+
+.filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: var(--card);
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.filter:hover { border-color: #c9d3e6; }
+
+.filter.active {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: #fff;
+}
+
+/* ---- Login page ------------------------------------------------------------------ */
+
+.auth-main {
+    max-width: 560px;
+}
+
+.auth-hero {
+    margin-bottom: 20px;
+}
+
+.auth-card {
+    max-width: none;
+}
+
+.auth-card .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+.auth-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 22px;
+}
+
+.auth-tab {
+    text-align: center;
+    text-decoration: none;
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--ink-soft);
+    padding: 9px 10px;
+    border-radius: 9px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease, box-shadow 0.18s ease;
+}
+
+.auth-tab:hover {
+    color: var(--brown);
+    background: rgba(198, 161, 91, 0.18);
+    transform: translateY(-1px);
+}
+
+.auth-tab:active,
+.auth-tab.is-pressing {
+    transform: translateY(1px) scale(0.97);
+    color: #2a1810;
+    background: #e8c97a;
+    box-shadow: inset 0 2px 6px rgba(42, 24, 16, 0.2);
+}
+
+.auth-tab:focus-visible {
+    outline: 2px solid #c6a15b;
+    outline-offset: 2px;
+}
+
+.auth-tab.active {
+    background: linear-gradient(180deg, #e8c97a, #c6a15b);
+    color: #2a1810;
+    box-shadow: 0 2px 8px rgba(198, 161, 91, 0.35);
+}
+
+.field-error {
+    margin: 2px 0 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--red);
+}
+
+.auth-hint {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line);
+    font-size: 13.5px;
+    color: var(--ink-faint);
+    text-align: center;
+}
+
+.auth-hint a {
+    color: var(--blue);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.auth-hint a:hover {
+    text-decoration: underline;
+}
+
+.alert {
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 18px;
+}
+
+.alert-error {
+    background: var(--red-soft);
+    color: var(--red);
+    border: 1px solid #f5c2c2;
+}
+
+.alert-ok {
+    background: var(--green-soft);
+    color: var(--green);
+    border: 1px solid #b7e4d0;
+}
+
+/* ---- Cart pill in the navigation -------------------------------------- */
+
+.nav-pill {
+    display: inline-block;
+    min-width: 20px;
+    margin-left: 7px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: #2a1810;
+    color: #e8c97a;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+}
+
+/* ---- Shop grid --------------------------------------------------------- */
+
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.book-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+/* Hovering a book keeps the card compact and just lifts it a little; the big
+   artwork appears in the floating .cover-pop panel next to the cursor. */
+.book-card:hover,
+.book-card:focus-within,
+.book-card.is-zoom {
+    transform: translateY(-2px);
+    z-index: 30;
+    box-shadow: var(--shadow-md);
+    background: #fffdf7;
+}
+
+/* One shared popup, moved around by ui.js. pointer-events: none lets the cursor
+   keep talking to the card underneath, so Buy/Rent still work while it is open. */
+.cover-pop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 90;
+    width: 200px;
+    padding: 8px;
+    background: #fffdf7;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    pointer-events: none;
+    transform-origin: left center;
+    animation: pop-in 0.14s ease-out;
+}
+
+.cover-pop[data-side="left"] {
+    transform-origin: right center;
+}
+
+.cover-pop[hidden] {
+    display: none;
+}
+
+.cover-pop-image {
+    display: block;
+    width: 100%;
+    height: 268px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: linear-gradient(150deg, #e8c97a, #a67c2d);
+}
+
+.cover-pop-letter {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 268px;
+    border-radius: 8px;
+    background: linear-gradient(150deg, #e8c97a, #a67c2d);
+    color: #2a1810;
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700;
+    font-size: 78px;
+}
+
+.cover-pop-caption {
+    margin: 8px 2px 2px;
+    font-family: var(--font-head);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.35;
+}
+
+@keyframes pop-in {
+    from { opacity: 0; transform: scale(0.82); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* ---- Reader opinions: stars, likes, reviews ----------------------------------- */
+
+.stars {
+    display: inline-flex;
+    gap: 1px;
+    letter-spacing: 1px;
+    line-height: 1;
+}
+
+.star {
+    color: #d8cdbb;
+    font-size: 13px;
+}
+
+.star.on {
+    color: var(--gold);
+}
+
+.opinion-line {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-wrap: wrap;
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--ink-faint);
+}
+
+.opinion-score {
+    font-weight: 600;
+    color: var(--ink-soft);
+}
+
+.opinion-likes {
+    color: #c2557a;
+    font-weight: 600;
+}
+
+.opinion-none {
+    font-style: italic;
+}
+
+.opinion-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 18px 0 4px;
+    padding: 14px 16px;
+    background: var(--cream);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+}
+
+.opinion-score-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.opinion-big {
+    font-family: var(--font-head);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+}
+
+.opinion-meta {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+}
+
+.opinion-bar .opinion-likes {
+    margin: 0;
+}
+
+.reviews {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 2px solid var(--line);
+}
+
+.review-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.review-form .form-group.grow {
+    flex: 1;
+    min-width: 220px;
+}
+
+.review-form textarea {
+    width: 100%;
+    font: inherit;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 9px 12px;
+    resize: vertical;
+}
+
+.label-text {
+    display: block;
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink);
+    margin-bottom: 6px;
+}
+
+/*
+ * Star picker. The inputs are written 5 down to 1 and the row is reversed, so they
+ * read left to right as 1..5 while the "colour everything after me" sibling rule
+ * still points at the right stars.
+ */
+.star-pick {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    gap: 2px;
+}
+
+.star-pick input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+}
+
+.star-pick label {
+    font-size: 24px;
+    line-height: 1;
+    color: #d8cdbb;
+    cursor: pointer;
+    transition: color 0.12s ease, transform 0.12s ease;
+}
+
+.star-pick input:checked ~ label,
+.star-pick label:hover,
+.star-pick label:hover ~ label {
+    color: var(--gold);
+}
+
+.star-pick label:hover {
+    transform: scale(1.12);
+}
+
+.star-pick input:focus-visible + label {
+    outline: 2px solid var(--gold);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+.opt {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--ink-faint);
+    text-transform: lowercase;
+}
+
+.review-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.review {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px 14px;
+}
+
+.review-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+.review-who {
+    font-family: var(--font-head);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink);
+}
+
+.review-when {
+    font-size: 11.5px;
+    color: var(--ink-faint);
+}
+
+.review-text {
+    margin: 7px 0 0;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+}
+
+.review-about {
+    margin: 6px 0 0;
+    font-size: 12.5px;
+    color: var(--ink-faint);
+}
+
+.review-quote {
+    border-left: 3px solid var(--gold);
+}
+
+.empty-line {
+    font-size: 13px;
+    color: var(--ink-faint);
+    font-style: italic;
+    margin: 6px 0 0;
+}
+
+.link-danger {
+    color: #b04668;
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    font-size: 11.5px;
+    cursor: pointer;
+}
+
+.book-cover {
+    flex: none;
+    width: 100%;
+    height: 118px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    background: linear-gradient(150deg, #e8c97a, #a67c2d);
+    color: #2a1810;
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700;
+    font-size: 30px;
+    display: grid;
+    place-items: center;
+    box-shadow: inset -3px 0 7px rgba(42, 24, 16, 0.18);
+}
+
+/* The letter tile sits behind the picture, so a missing cover still looks intentional. */
+.cover-letter {
+    grid-area: 1 / 1;
+}
+
+.cover-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.book-cover-dim {
+    background: linear-gradient(150deg, #d8cbb6, #a89680);
+    opacity: 0.65;
+}
+
+.book-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.book-name {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1.25;
+}
+
+.book-author {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+}
+
+.book-year {
+    font-size: 11px;
+    color: var(--ink-faint);
+}
+
+/* Language pill on a card, shown only when the edition is not English. */
+.lang-tag {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fffdf7;
+    font-family: var(--font-head);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--gold);
+}
+
+/* A book the shop stocks in more than one language. */
+.multi-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    margin: 3px 0 0;
+    font-size: 11px;
+}
+
+.multi-tag {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: var(--blue-soft);
+    font-family: var(--font-head);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--ink);
+}
+
+.multi-note {
+    color: var(--ink-faint);
+    font-style: italic;
+}
+
+.stock-alt {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--gold);
+}
+
+/* The other language editions, sold from the single-book page. */
+.editions {
+    margin: 18px 0;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fffdf7;
+}
+
+.edition-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.edition {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-top: 1px dashed var(--line);
+}
+
+.edition:first-child {
+    border-top: 0;
+    padding-top: 0;
+}
+
+.edition-cover {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 46px;
+    height: 66px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: linear-gradient(150deg, #e8c97a, #a67c2d);
+    color: #2a1810;
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700;
+}
+
+.edition-cover .cover-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.edition-info {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.edition-name {
+    display: block;
+    font-family: var(--font-head);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.edition-name:hover {
+    color: var(--gold);
+}
+
+.edition-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 2px 0;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+}
+
+.edition-meta .lang-tag {
+    margin-left: 0;
+}
+
+.edition-buy {
+    display: flex;
+    gap: 6px;
+    flex: 0 0 auto;
+}
+
+.cover-letter-small {
+    font-size: 20px;
+}
+
+.price-row {
+
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.price-chip {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--blue-soft);
+    color: var(--blue-deep);
+    white-space: nowrap;
+}
+
+.price-chip-rent {
+    background: var(--violet-soft);
+    color: var(--violet);
+}
+
+.stock-line {
+    font-size: 11px;
+    color: var(--green);
+    font-weight: 600;
+}
+
+.stock-line-out {
+    color: var(--amber);
+}
+
+.card-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.card-actions form {
+    display: flex;
+    gap: 6px;
+}
+
+.card-actions .btn-small {
+    font-size: 11.5px;
+    padding: 5px 9px;
+}
+
+/* ---- Genre shelves ------------------------------------------------------ */
+
+.genre-chips {
+    margin: 4px 0 12px;
+}
+
+/* Thin divider between the "By genre / By author" switch and the filter chips. */
+.chip-sep {
+    width: 1px;
+    align-self: stretch;
+    background: var(--line);
+    margin: 2px 4px;
+}
+
+.shelf-note {
+    font-size: 12px;
+    color: var(--ink-faint);
+    align-self: center;
+}
+
+.shelf + .shelf {
+    margin-top: 30px;
+}
+
+.shelf-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 2px solid var(--line);
+}
+
+.shelf-title {
+    font-family: var(--font-head);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.shelf-count {
+    font-size: 12px;
+    color: var(--ink-faint);
+}
+
+.search select {
+    font: inherit;
+    color: var(--ink);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 9px 12px;
+}
+
+.search select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(198, 161, 91, 0.25);
+}
+
+/* ---- Cart -------------------------------------------------------------- */
+
+.qty-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.qty-form input[type="number"] {
+    font: inherit;
+    width: 68px;
+    padding: 6px 8px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff8ee;
+}
+
+.checkout-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    padding: 18px 22px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.checkout-total {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.checkout-label {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+
+.checkout-value {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 26px;
+    color: var(--blue);
+}
+
+/* ---- Book detail ------------------------------------------------------- */
+
+.detail-card {
+    max-width: 640px;
+}
+
+.detail-top {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.detail-cover {
+    flex: 0 0 118px;
+    height: 172px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 4px 10px 10px 4px;
+    background: linear-gradient(150deg, #e8c97a, #a67c2d);
+    color: #2a1810;
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700;
+    font-size: 58px;
+    display: grid;
+    place-items: center;
+    box-shadow: var(--shadow-md);
+}
+
+.detail-blurb {
+    font-size: 14px;
+    color: var(--ink-soft);
+}
+
+/* Small cover inside the admin catalog table */
+.row-cover {
+    display: inline-grid;
+    place-items: center;
+    vertical-align: middle;
+    width: 26px;
+    height: 36px;
+    position: relative;
+    overflow: hidden;
+    margin-right: 9px;
+    border-radius: 2px 5px 5px 2px;
+    background: linear-gradient(150deg, #e8c97a, #a67c2d);
+    color: #2a1810;
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.row-cover .cover-letter {
+    grid-area: 1 / 1;
+}
+
+.detail-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 22px;
+    margin-bottom: 22px;
+}
+
+.detail-list > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed var(--line);
+}
+
+.detail-list dt {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+
+.detail-list dd {
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.detail-buy .form-group {
+    max-width: 210px;
+}
+
+/* ---- Demo account list on the login page ------------------------------- */
+
+.demo-accounts {
+    margin-top: 20px;
+    padding: 14px 16px;
+    border: 1px dashed var(--line);
+    border-radius: 12px;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.demo-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+}
+
+.demo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.demo-row code {
+    font-family: "Consolas", monospace;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 2px 8px;
+}
+
+/* ---- Profile page ----------------------------------------------------- */
+
+.profile-head {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-name {
+    margin: 0;
+}
+
+.profile-handle {
+    font-size: 14px;
+    color: var(--ink-soft);
+    margin: 2px 0 6px;
+}
+
+.profile-role {
+    font-family: var(--font-head);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gold);
+    margin: 0 0 2px;
+}
+
+.profile-since {
+    font-size: 12px;
+    color: var(--ink-faint);
+    margin: 0;
+}
+
+/* The characters a reader can wear, in one row of round tiles. */
+.avatar-shelf {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 0 0 18px;
+}
+
+.avatar-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    width: 96px;
+    padding: 10px 6px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fffdf7;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.avatar-tile:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--gold);
+}
+
+.avatar-tile:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+}
+
+.avatar-tile.active {
+    border-color: var(--gold);
+    box-shadow: inset 0 0 0 1px var(--gold);
+}
+
+.avatar-tile .avatar {
+    width: 64px;
+    height: 64px;
+    font-size: 22px;
+}
+
+.avatar-tile strong {
+    font-size: 12.5px;
+    line-height: 1.25;
+    text-align: center;
+}
+
+.avatar-tile em {
+    font-size: 10.5px;
+    font-style: normal;
+    color: var(--ink-faint);
+    text-align: center;
+}
+
+/* The profile page is one card under the next: the picture shelf and the detail
+   fields need the full width to sit comfortably. */
+.profile-stack {
+    display: grid;
+    gap: 20px;
+}
+
+.details-form {
+    padding-top: 16px;
+    border-top: 1px dashed var(--line);
+}
+
+.details-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 16px;
+}
+
+.profile-stack .detail-list {
+    margin-bottom: 0;
+}
+
+/* Confirm & pay page: order summary on the left, payment card on the right. */
+.pay-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.pay-side .checkout-total {
+    margin: 8px 0 16px;
+}
+
+#pay-button {
+    width: 100%;
+    justify-content: center;
+}
+
+#pay-button:disabled {
+    opacity: 0.6;
+    cursor: progress;
+}
+
+#pay-status {
+    min-height: 1.2em;
+    margin: 10px 0 14px;
+}
+
+/* Rentals-to-return block on the cart page. */
+.rental-returns {
+    margin-top: 34px;
+    padding-top: 22px;
+    border-top: 1px dashed var(--line);
+}
+
+.rental-returns .section-title {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 20px;
+    margin: 0 0 6px;
+}
+
+.rental-returns .section-note {
+    margin: 0 0 16px;
+    color: var(--ink-soft);
+    max-width: 70ch;
+}
+
+#return-status {
+    min-height: 1.2em;
+    margin-top: 12px;
+}
+
+.upload-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 14px 0 0;
+    border-top: 1px dashed var(--line);
+}
+
+.upload-form input[type="file"] {
+    padding: 7px;
+    background: #fff;
+}
+
+.photo-remove {
+    margin-top: 8px;
+}
+
+.mini-history {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mini-history li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--line);
+    font-size: 13.5px;
+}
+
+.mini-history li:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.mini-history .hist-book {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-family: var(--font-head);
+    font-weight: 600;
+}
+
+.mini-history .hist-when {
+    color: var(--ink-faint);
+    font-size: 11.5px;
+}
+
+.mini-history .hist-sum {
+    margin: 2px 0 0;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+}
+
+/* ---- Responsive -------------------------------------------------------------- */
+
+@media (max-width: 980px) {
+    .book-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pay-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .details-form .form-row,
+    .profile-stack .detail-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .book-grid { grid-template-columns: 1fr; }
+
+    /* A 200px popup is too wide for a phone, so let it stretch across the screen. */
+    .cover-pop {
+        width: min(200px, calc(100vw - 24px));
+    }
+
+    .detail-list { grid-template-columns: 1fr; }
+
+    .checkout-bar { flex-direction: column; align-items: stretch; text-align: center; }
+
+    .checkout-total { justify-content: center; }
+
+    .topbar { justify-content: center; text-align: center; }
+
+    .topbar-main { justify-content: center; }
+
+    .hero { flex-direction: column; align-items: flex-start; }
+
+    .stats { width: 100%; }
+
+    .stat { flex: 1; min-width: 84px; padding: 12px 10px; }
+
+    .form-grid { grid-template-columns: 1fr; }
+
+    .card { padding: 18px; }
+
+    /* Table collapses into stacked cards */
+    .table-wrap { background: transparent; border: none; box-shadow: none; overflow: visible; }
+
+    table, thead, tbody, tr, td { display: block; width: 100%; }
+
+    thead { display: none; }
+
+    tbody tr {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        box-shadow: var(--shadow-sm);
+        padding: 8px 14px;
+        margin-bottom: 10px;
+    }
+
+    tbody td {
+        border: none;
+        padding: 7px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        text-align: right;
+    }
+
+    tbody td::before {
+        content: attr(data-label);
+        font-family: var(--font-head);
+        font-weight: 700;
+        font-size: 11.5px;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        color: var(--ink-faint);
+        text-align: left;
+    }
+
+    .actions { justify-content: flex-end; }
+}
+
+/* ---- Support chat (reader help desk + admin thread) ---- */
+.chat-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 760px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.chat-window {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 6px 4px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.chat-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.chat-me {
+    justify-content: flex-end;
+}
+
+.chat-avatar {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-head);
+    font-weight: 700;
+    color: #fff;
+    background: var(--gold);
+    box-shadow: var(--shadow-sm);
+}
+
+.chat-bubble {
+    max-width: 78%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    line-height: 1.45;
+    box-shadow: var(--shadow-sm);
+}
+
+.chat-bubble p {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.chat-bubble.them {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-bottom-left-radius: 4px;
+}
+
+.chat-bubble.me {
+    background: var(--blue-soft);
+    border: 1px solid var(--gold);
+    border-bottom-right-radius: 4px;
+}
+
+.chat-who {
+    display: block;
+    font-family: var(--font-head);
+    font-size: 0.78rem;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 3px;
+}
+
+.chat-when {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+}
+
+.chat-input {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+}
+
+.chat-input textarea {
+    flex: 1 1 auto;
+    resize: vertical;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    font: inherit;
+    color: var(--ink);
+    background: #fff;
+}
+
+.chat-preview {
+    display: block;
+    color: var(--ink-soft);
+}
+
+/* ---- Floating support chat widget (bottom-right) ---- */
+.chat-widget {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.chat-launcher {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: var(--gold);
+    box-shadow: var(--shadow-md);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.chat-launcher:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.chat-launcher svg {
+    width: 26px;
+    height: 26px;
+}
+
+.chat-widget-panel {
+    display: none;
+    flex-direction: column;
+    width: min(92vw, 360px);
+    height: min(70vh, 480px);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.chat-widget.open .chat-widget-panel {
+    display: flex;
+    animation: chat-pop 0.16s ease-out;
+}
+
+.chat-widget.open .chat-launcher {
+    display: none;
+}
+
+@keyframes chat-pop {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.chat-widget-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: var(--brown);
+    color: #fff;
+}
+
+.chat-widget-head .chat-avatar {
+    background: var(--gold);
+    color: #fff;
+}
+
+.chat-widget-title {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    flex: 1 1 auto;
+}
+
+.chat-widget-title strong {
+    font-family: var(--font-head);
+    font-size: 0.98rem;
+}
+
+.chat-widget-sub {
+    font-size: 0.74rem;
+    color: var(--blue-soft);
+}
+
+.chat-widget-close {
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.chat-widget-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--bg);
+}
+
+.chat-widget .chat-bubble {
+    max-width: 85%;
+}
+
+.chat-widget .chat-input {
+    border-top: 1px solid var(--line);
+    background: var(--card);
+    padding: 12px;
+}
+
+.chat-error {
+    align-self: center;
+    color: var(--red);
+    font-size: 0.85rem;
+}
+
+/* A reply the app wrote itself, rather than a librarian typing it. */
+.chat-bot-tag {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--blue-soft);
+    color: var(--ink-soft);
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* The single-book page shows the admin's blurb under the facts. */
+.book-summary {
+    margin: 18px 0;
+    padding: 16px 18px;
+    border-left: 3px solid var(--gold);
+    background: var(--blue-soft);
+    border-radius: 0 10px 10px 0;
+}
+
+.book-summary h4 {
+    margin: 0 0 8px;
+    font-size: 0.95rem;
+}
+
+.book-summary p {
+    margin: 0;
+    line-height: 1.65;
+}
+
+/* The summary box on the book form spans the whole grid width. */
+.form-group-wide {
+    grid-column: 1 / -1;
+}
+
+/* ---------- Buy confirm popup ---------- */
+
+body.buy-modal-open {
+    overflow: hidden;
+}
+
+.buy-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.buy-modal[hidden] {
+    display: none;
+}
+
+.buy-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 12, 20, 0.62);
+}
+
+.buy-modal-card {
+    position: relative;
+    width: min(94vw, 640px);
+    max-height: 88vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px 22px;
+    border-radius: 16px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.buy-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.buy-modal-head h4 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.buy-modal-x {
+    border: none;
+    background: none;
+    color: var(--ink-soft);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.buy-modal-body {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 18px;
+    align-items: start;
+}
+
+.buy-modal-cover {
+    position: relative;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--blue-soft);
+}
+
+.buy-modal-cover .cover-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.buy-modal-name {
+    margin: 0 0 4px;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.buy-modal-meta,
+.buy-modal-tags {
+    margin: 0 0 4px;
+    color: var(--ink-soft);
+    font-size: 0.86rem;
+}
+
+.buy-modal-prices {
+    margin: 10px 0 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.buy-modal-blurb {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    background: var(--blue-soft);
+}
+
+.buy-modal-blurb h5 {
+    margin: 0 0 6px;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+}
+
+.buy-modal-blurb p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.buy-modal-stock {
+    margin: 12px 0 0;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+}
+
+.buy-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 6px;
+    border-top: 1px solid var(--line);
+}
+
+@media (max-width: 640px) {
+    .buy-modal-body {
+        grid-template-columns: 1fr;
+    }
+
+    .buy-modal-cover {
+        min-height: 160px;
+    }
+}
+
+
