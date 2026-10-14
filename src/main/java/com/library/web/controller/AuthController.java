@@ -3,9 +3,11 @@ package com.library.web.controller;
 import java.util.List;
 import java.util.Optional;
 
+import com.library.web.config.SecurityConfig;
 import com.library.web.model.SiteUser;
 import com.library.web.repository.SiteUserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,10 +33,13 @@ public class AuthController {
 
     private final SiteUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ClientRegistrationRepository clientRegistrations;
 
-    public AuthController(SiteUserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthController(SiteUserRepository userRepository, PasswordEncoder passwordEncoder,
+                          ClientRegistrationRepository clientRegistrations) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.clientRegistrations = clientRegistrations;
     }
 
     @GetMapping("/login")
@@ -55,6 +60,10 @@ public class AuthController {
         if (reset != null) {
             model.addAttribute("passwordReset", true);
         }
+        // Only true on a machine that was given Google credentials, so the page can hide
+        // the button instead of showing one that leads to a dead end.
+        model.addAttribute("googleSignIn",
+                clientRegistrations.findByRegistrationId(SecurityConfig.GOOGLE) != null);
         return "login";
     }
 
