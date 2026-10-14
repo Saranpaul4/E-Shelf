@@ -1,5 +1,6 @@
 package com.library.web.service;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,13 +8,15 @@ import java.util.UUID;
 
 import com.library.web.model.SiteUser;
 import com.library.web.repository.SiteUserRepository;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
 /**
@@ -25,13 +28,13 @@ import org.springframework.stereotype.Service;
  * public sign-up would make one. The role always comes from {@link SiteUser}, never from the
  * identity provider.</p>
  *
- * <p>It extends {@code DefaultOAuth2UserService} because that is the piece Spring Security
- * asks to fetch the profile once Google has said yes. We let the parent do the HTTP call and
- * then rebuild the principal, so the authenticated name is our username and the authority is
- * our own ROLE_.</p>
+ * <p>It extends {@code OidcUserService} rather than the plain "OAuth2" one because our scopes
+ * include {@code openid}, and Spring Security sends every such login down the OIDC path. Ask
+ * for the wrong one and the login still succeeds, but with Google's own principal: a numeric
+ * subject instead of a username, and no ROLE_ at all, which the shop reads as a stranger.</p>
  */
 @Service
-public class GoogleLoginService extends DefaultOAuth2UserService {
+public class GoogleLoginService extends OidcUserService {
 
     private final SiteUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -42,8 +45,8 @@ public class GoogleLoginService extends DefaultOAuth2UserService {
     }
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
-        OAuth2User googleUser = super.loadUser(request);
+    public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
+        OidcUser googleUser = super.loadUser(userRequest);
 
         String email = claim(googleUser, "email");
         if (email == null || email.isBlank()) {
@@ -58,13 +61,7 @@ public class GoogleLoginService extends DefaultOAuth2UserService {
         if (account == null) {
             account = userRepository.save(register(email, displayName));
         }
-
-        Map<String, Object> claims = new HashMap<>(googleUser.getAttributes());
-        claims.put("username", account.getUsername());
-        return new DefaultOAuth2User(
-                List.of(new SimpleGrantedAuthority("ROLE_" + account.getRole())),
-                claims,
-                "username");
+        return new ShopAccount(googleUser, account);
     }
 
     /** A first-timer from Google: a customer account with no password anyone can guess. */
@@ -74,9 +71,8 @@ public class GoogleLoginService extends DefaultOAuth2UserService {
         // Password column cannot be null, so it holds the hash of a random value that was
         // never shown to anyone: this account signs in through Google, and a reader who ever
         // wants a password can set one through the forgot-password flow.
-        SiteUser user = new SiteUser(handle, passwordEncoder.encode(UUID.randomUUID().toString()),
+        return new SiteUser(handle, passwordEncoder.encode(UUID.randomUUID().toString()),
                 "USER", name, email);
-        return user;
     }
 
     /**
@@ -98,8 +94,64 @@ public class GoogleLoginService extends DefaultOAuth2UserService {
         return candidate;
     }
 
-    private static String claim(OAuth2User user, String key) {
+    private static String claim(OidcUser user, String key) {
         Object value = user.getAttributes().get(key);
         return value == null ? null : value.toString();
+    }
+
+    /**
+     * Google's signed-in person, wearing this shop's name and role.
+     *
+     * <p>The rest of the app only ever asks an authenticated user two things: their name,
+     * which must be a row in {@code site_user}, and their authority, which decides which
+     * portal they may open. Both come from our account here, while every Google claim is kept
+     * as it was so nothing about the verified ID token is lost.</p>
+     */
+    private static final class ShopAccount implements OidcUser {
+
+        private final OidcUser googleUser;
+        private final String username;
+        private final Collection<? extends GrantedAuthority> authorities;
+        private final Map<String, Object> attributes;
+
+        ShopAccount(OidcUser googleUser, SiteUser account) {
+            this.googleUser = googleUser;
+            this.username = account.getUsername();
+            this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + account.getRole()));
+            Map<String, Object> claims = new HashMap<>(googleUser.getAttributes());
+            claims.put("username", this.username);
+            this.attributes = claims;
+        }
+
+        @Override
+        public Collection<? extends GrantedAuthority> getAuthorities() {
+            return this.authorities;
+        }
+
+        @Override
+        public Map<String, Object> getAttributes() {
+            return this.attributes;
+        }
+
+        /** What {@code SecurityContext} reports as the logged-in username. */
+        @Override
+        public String getName() {
+            return this.username;
+        }
+
+        @Override
+        public Map<String, Object> getClaims() {
+            return this.googleUser.getClaims();
+        }
+
+        @Override
+        public OidcIdToken getIdToken() {
+            return this.googleUser.getIdToken();
+        }
+
+        @Override
+        public OidcUserInfo getUserInfo() {
+            return this.googleUser.getUserInfo();
+        }
     }
 }

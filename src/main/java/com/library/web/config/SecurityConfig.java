@@ -58,10 +58,12 @@ public class SecurityConfig {
 
         // Google is a bonus door, not a requirement. Only wire it in once there are
         // credentials, so the app still boots and signs in by password with none.
+        // The reader hook is oidcUserService because our scopes ask for "openid"; with that
+        // scope Spring Security ignores the plain user-info hook entirely.
         if (clientRegistrations.findByRegistrationId(GOOGLE) != null) {
             http.oauth2Login(oauth -> oauth
                     .loginPage("/login")
-                    .userInfoEndpoint(user -> user.userService(googleUsers))
+                    .userInfoEndpoint(user -> user.oidcUserService(googleUsers))
                     .permitAll());
         }
 
@@ -101,7 +103,7 @@ public class SecurityConfig {
                 .userNameAttributeName("sub")
                 .clientName("Google")
                 .build();
-        return new org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository(google);
+        return new InMemoryClientRegistrationRepository(google);
     }
 
     /**
