@@ -28,13 +28,16 @@
         <div class="alert alert-ok" th:if="${accountCreated}">
             Account created — log in with your new username below.
         </div>
+        <div class="alert alert-ok" th:if="${passwordReset}">
+            Password changed — log in with your new one below.
+        </div>
 
         <form th:action="@{/login}" method="post">
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="username">Username <span class="req">*</span></label>
+                    <label for="username">Username or email <span class="req">*</span></label>
                     <input type="text" id="username" name="username" th:value="${registeredUsername}"
-                           placeholder="Username" required autofocus>
+                           placeholder="Username or email" required autofocus>
                 </div>
 
                 <div class="form-group">
@@ -45,6 +48,7 @@
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Log in</button>
+                <a class="link" th:href="@{/forgot-password}">Forgot your password?</a>
             </div>
         </form>
 

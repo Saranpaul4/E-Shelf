@@ -125,9 +125,10 @@
                     <div class="card-actions">
                         <form th:action="@{/shop/cart/add}" method="post" th:if="${book.inStock}">
                             <input type="hidden" name="bookId" th:value="${book.id}">
-                            <!-- Buy no longer posts on its own. It opens the confirm popup,
-                                 which posts for it once the reader has read the summary. -->
-                            <button type="button" class="btn btn-small btn-primary buy-check"
+                            <!-- Neither button posts on its own any more. Both open the confirm
+                                 popup, which posts for them once the reader has read the summary. -->
+                            <button type="button" class="btn btn-small btn-primary cart-check"
+                                    data-mode="BUY"
                                     th:data-title="${book.title}"
                                     th:data-author="${book.author}"
                                     th:data-year="${book.publishedYear}"
@@ -138,7 +139,18 @@
                                     th:data-stock="${book.stockQuantity}"
                                     th:data-summary="${book.summary}"
                                     th:data-cover="${book.hasCover} ? ${book.coverLarge} : ''">Buy</button>
-                            <button type="submit" name="action" value="RENT" class="btn btn-small">Rent</button>
+                            <button type="button" class="btn btn-small cart-check"
+                                    data-mode="RENT"
+                                    th:data-title="${book.title}"
+                                    th:data-author="${book.author}"
+                                    th:data-year="${book.publishedYear}"
+                                    th:data-genre="${book.genre.label}"
+                                    th:data-language="${book.language}"
+                                    th:data-price="${book.price}"
+                                    th:data-rental="${book.rentalPrice}"
+                                    th:data-stock="${book.stockQuantity}"
+                                    th:data-summary="${book.summary}"
+                                    th:data-cover="${book.hasCover} ? ${book.coverLarge} : ''">Rent</button>
                         </form>
                         <a class="btn btn-small btn-ghost" th:href="@{/shop/book/{id}(id=${book.id})}">Details</a>
                     </div>
@@ -158,48 +170,52 @@
         <p class="cover-pop-caption" id="coverPopCaption"></p>
     </div>
 
-    <!-- buy-confirm.js fills this one dialog and submits the card's form when confirmed.
-         Nothing is put in the cart until the reader presses Add to cart. -->
-    <div class="buy-modal" id="buy-modal" hidden>
-        <div class="buy-modal-backdrop" data-buy-close></div>
-        <section class="buy-modal-card" role="dialog" aria-modal="true" aria-labelledby="buy-modal-title">
-            <header class="buy-modal-head">
-                <h4 id="buy-modal-title">Before you buy</h4>
-                <button type="button" class="buy-modal-x" data-buy-close aria-label="Close">&times;</button>
+    <!-- cart-confirm.js fills this one dialog and submits the card's form when confirmed.
+         The same dialog serves Buy and Rent; nothing enters the cart until the reader
+         presses the button at the bottom. -->
+    <div class="cart-modal" id="cart-modal" hidden>
+        <div class="cart-modal-backdrop" data-cart-close></div>
+        <section class="cart-modal-card" role="dialog" aria-modal="true" aria-labelledby="cart-modal-title">
+            <header class="cart-modal-head">
+                <h4 id="cart-modal-title">Before you buy</h4>
+                <button type="button" class="cart-modal-x" data-cart-close aria-label="Close">&times;</button>
             </header>
 
-            <div class="buy-modal-body">
-                <div class="buy-modal-cover">
-                    <span class="cover-letter" id="buy-cover-letter">C</span>
-                    <img class="cover-image" id="buy-cover" alt="" loading="lazy" onerror="this.remove()">
+            <div class="cart-modal-body">
+                <div class="cart-modal-cover">
+                    <span class="cover-letter" id="cart-cover-letter">C</span>
+                    <img class="cover-image" id="cart-cover" alt="" loading="lazy" onerror="this.remove()">
                 </div>
 
-                <div class="buy-modal-info">
-                    <p class="buy-modal-name" id="buy-name">Clean Code</p>
-                    <p class="buy-modal-meta" id="buy-meta">Robert C. Martin &middot; 2008</p>
-                    <p class="buy-modal-tags" id="buy-tags">Technology &middot; English</p>
-                    <p class="buy-modal-prices">
-                        <span class="price-chip" id="buy-price">Buy $44.99</span>
-                        <span class="price-chip price-chip-rent" id="buy-rental">Rent $6.99</span>
+                <div class="cart-modal-info">
+                    <p class="cart-modal-name" id="cart-name">Clean Code</p>
+                    <p class="cart-modal-meta" id="cart-meta">Robert C. Martin &middot; 2008</p>
+                    <p class="cart-modal-tags" id="cart-tags">Technology &middot; English</p>
+                    <p class="cart-modal-prices">
+                        <span class="price-chip" id="cart-price">Buy $44.99</span>
+                        <span class="price-chip price-chip-rent" id="cart-rental">Rent $6.99</span>
                     </p>
 
-                    <div class="buy-modal-blurb">
+                    <div class="cart-modal-blurb">
                         <h5>Summary</h5>
-                        <p id="buy-summary">No summary added yet.</p>
+                        <p id="cart-summary">No summary added yet.</p>
                     </div>
 
-                    <p class="buy-modal-stock" id="buy-stock">4 copy/copies ready</p>
+                    <p class="cart-modal-terms" id="cart-terms-buy">Yours to keep — there is no return date.</p>
+                    <p class="cart-modal-terms" id="cart-terms-rent"
+                       th:text="|Borrowed for ${rentalDays} days, then back on the shelf. A late return adds a small daily fee.|">Borrowed for 14 days, then back on the shelf. A late return adds a small daily fee.</p>
+                    <p class="cart-modal-stock" id="cart-stock">4 copy/copies ready</p>
                 </div>
             </div>
 
-            <footer class="buy-modal-actions">
-                <button type="button" class="btn btn-ghost" data-buy-close>Cancel</button>
-                <button type="button" class="btn btn-primary" id="buy-confirm">Add to cart</button>
+            <footer class="cart-modal-actions">
+                <button type="button" class="btn btn-ghost" data-cart-close>Cancel</button>
+                <button type="button" class="btn btn-primary" id="cart-confirm">Add to cart</button>
             </footer>
         </section>
     </div>
 
-    <script th:src="@{/js/buy-confirm.js}"></script>
+    <script th:src="@{/js/cart-confirm.js}"></script>
 </main>
 <th:block th:replace="~{fragments/layout :: pageend}"></th:block>
 </body>

@@ -1,5 +1,8 @@
 package com.library.web.controller;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.library.web.model.SiteUser;
 import com.library.web.repository.SiteUserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +16,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class AuthController {
 
+    /**
+     * The questions a reader may pick at sign-up. Fixed on purpose: a free-text question
+     * invites people to write one their own answer makes obvious, and the list is short
+     * enough that a dropdown reads better than a form field.
+     */
+    private static final List<String> SECURITY_QUESTIONS = List.of(
+            "What is your favourite book?",
+            "What was the name of your first school?",
+            "What city were you born in?",
+            "What is your favourite film?",
+            "What was your childhood nickname?",
+            "What is the name of your favourite teacher?");
+
     private final SiteUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -25,6 +41,7 @@ public class AuthController {
     public String login(@RequestParam(value = "error", required = false) String error,
                         @RequestParam(value = "logout", required = false) String logout,
                         @RequestParam(value = "registered", required = false) String registered,
+                        @RequestParam(value = "reset", required = false) String reset,
                         Model model) {
         if (error != null) {
             model.addAttribute("loginError", true);
@@ -35,11 +52,15 @@ public class AuthController {
         if (registered != null) {
             model.addAttribute("accountCreated", true);
         }
+        if (reset != null) {
+            model.addAttribute("passwordReset", true);
+        }
         return "login";
     }
 
     @GetMapping("/signup")
-    public String signupForm() {
+    public String signupForm(Model model) {
+        model.addAttribute("questions", SECURITY_QUESTIONS);
         return "signup";
     }
 
@@ -53,6 +74,8 @@ public class AuthController {
                          @RequestParam String confirmPassword,
                          @RequestParam String fullName,
                          @RequestParam String email,
+                         @RequestParam(required = false) String securityQuestion,
+                         @RequestParam(required = false) String securityAnswer,
                          Model model,
                          RedirectAttributes redirect) {
 
@@ -92,16 +115,114 @@ public class AuthController {
             valid = false;
         }
 
+        // The security question is optional at sign-up, but a reader who skips it cannot
+        // reset their own password later, so it has to be a complete pair when present.
+        String question = securityQuestion == null ? "" : securityQuestion.trim();
+        String answer = normaliseAnswer(securityAnswer);
+        if (!question.isEmpty() && answer.length() < 2) {
+            model.addAttribute("securityAnswerError", "Please give an answer of at least 2 characters.");
+            valid = false;
+        }
+        if (!question.isEmpty() && !SECURITY_QUESTIONS.contains(question)) {
+            model.addAttribute("securityAnswerError", "Please choose one of the listed questions.");
+            valid = false;
+        }
+
         model.addAttribute("username", name);
         model.addAttribute("fullName", display);
         model.addAttribute("email", mail);
+        model.addAttribute("securityQuestion", question);
+        model.addAttribute("securityAnswer", securityAnswer == null ? "" : securityAnswer);
+        model.addAttribute("questions", SECURITY_QUESTIONS);
 
         if (!valid) {
             return "signup";
         }
 
-        userRepository.save(new SiteUser(name, passwordEncoder.encode(password), "USER", display, mail));
+        SiteUser user = new SiteUser(name, passwordEncoder.encode(password), "USER", display, mail);
+        if (!question.isEmpty()) {
+            user.setSecurityQuestion(question);
+            user.setSecurityAnswer(answer);
+        }
+        userRepository.save(user);
         redirect.addFlashAttribute("registeredUsername", name);
         return "redirect:/login?registered";
+    }
+
+    /**
+     * Step one of a reset: the reader names their account and the page shows the question
+     * they chose at sign-up, so an answer means something. The account is not revealed to
+     * exist or not - a missing question and a missing account get the same quiet page.
+     */
+    @GetMapping("/forgot-password")
+    public String forgotForm(Model model) {
+        return "forgot-password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotIdentify(@RequestParam String username, Model model) {
+        String name = username == null ? "" : username.trim();
+        model.addAttribute("username", name);
+
+        SiteUser user = findAccount(name).orElse(null);
+        if (user == null || !user.isSecurityQuestionSet()) {
+            model.addAttribute("noQuestion", true);
+            return "forgot-password";
+        }
+
+        model.addAttribute("question", user.getSecurityQuestion());
+        model.addAttribute("askAnswer", true);
+        return "forgot-password";
+    }
+
+    /** Step two: the answer unlocks a new password, saved encoded, then back to the login page. */
+    @PostMapping("/forgot-password/reset")
+    public String forgotReset(@RequestParam String username,
+                              @RequestParam String answer,
+                              @RequestParam String password,
+                              @RequestParam String confirmPassword,
+                              Model model) {
+        String name = username == null ? "" : username.trim();
+        model.addAttribute("username", name);
+
+        SiteUser user = findAccount(name).orElse(null);
+        if (user == null || !user.isSecurityQuestionSet()
+                || !normaliseAnswer(answer).equals(user.getSecurityAnswer())) {
+            model.addAttribute("question", user == null ? null : user.getSecurityQuestion());
+            model.addAttribute("askAnswer", true);
+            model.addAttribute("answerError", "That answer does not match our records.");
+            return "forgot-password";
+        }
+
+        if (password == null || password.length() < 6) {
+            model.addAttribute("question", user.getSecurityQuestion());
+            model.addAttribute("askAnswer", true);
+            model.addAttribute("passwordError", "Password must be at least 6 characters.");
+            return "forgot-password";
+        }
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute("question", user.getSecurityQuestion());
+            model.addAttribute("askAnswer", true);
+            model.addAttribute("confirmError", "Passwords do not match.");
+            return "forgot-password";
+        }
+
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+        return "redirect:/login?reset";
+    }
+
+    /** An account by username, or by email when the reader typed an address instead. */
+    private Optional<SiteUser> findAccount(String typed) {
+        if (typed == null || typed.isBlank()) {
+            return Optional.empty();
+        }
+        Optional<SiteUser> byName = userRepository.findByUsername(typed);
+        return byName.isPresent() ? byName : userRepository.findByEmail(typed.toLowerCase());
+    }
+
+    /** Answers are compared loosely: trimmed, lower cased, and any run of spaces counts as one. */
+    private static String normaliseAnswer(String raw) {
+        return raw == null ? "" : raw.trim().toLowerCase().replaceAll("\\s+", " ");
     }
 }

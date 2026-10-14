@@ -51,13 +51,25 @@ public class DataSeeder {
                     withProfile(new SiteUser("omar", encoder.encode("admin123"), "ADMIN",
                             "Omar Iqbal", "omar@eshelf.test"), null, 150,
                             "+971 50 778 990", "Alserkal Avenue, Dubai"),
-                    withProfile(new SiteUser("reader", encoder.encode("library123"), "USER",
+                    withRecovery(withProfile(new SiteUser("reader", encoder.encode("library123"), "USER",
                             "Ravi Kumar", "ravi@example.test"), ProfileAvatar.MOWGLI, 90,
                             "+91 90000 55443", "Flatchen House, Bengaluru 560001"),
-                    withProfile(new SiteUser("maya", encoder.encode("library123"), "USER",
+                            "What city were you born in?", "chennai"),
+                    withRecovery(withProfile(new SiteUser("maya", encoder.encode("library123"), "USER",
                             "Maya Sen", "maya@example.test"), ProfileAvatar.DORIAN, 30,
-                            null, null)));
+                            null, null),
+                            "What is your favourite book?", "the Hobbit")));
         };
+    }
+
+    /**
+     * Gives a seeded reader a forgotten-password question, so the reset flow can be tried
+     * on the demo accounts. Answers are stored lower case, the way the controller compares them.
+     */
+    private static SiteUser withRecovery(SiteUser user, String question, String answer) {
+        user.setSecurityQuestion(question);
+        user.setSecurityAnswer(answer);
+        return user;
     }
 
     @Bean

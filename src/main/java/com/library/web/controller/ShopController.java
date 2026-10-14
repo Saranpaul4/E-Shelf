@@ -139,6 +139,8 @@ public class ShopController {
         model.addAttribute("shownBooks", shelves.stream().mapToLong(shelf -> shelf.books().size()).sum());
         model.addAttribute("q", q);
         model.addAttribute("totalBooks", bookRepository.countByArrivalDateIsNull());
+        // The rent line in the confirm popup says how long a copy stays out.
+        model.addAttribute("rentalDays", ShopService.RENTAL_DAYS);
         return "shop";
     }
 

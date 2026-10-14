@@ -55,6 +55,25 @@
                            placeholder="Repeat your password" required>
                     <p class="field-error" th:if="${confirmError}" th:text="${confirmError}"></p>
                 </div>
+
+                <!-- Pick a question now, and this page can prove it is you if you ever
+                     forget the password. Skip it and a librarian has to reset it instead. -->
+                <div class="form-group">
+                    <label for="securityQuestion">Forgotten-password question</label>
+                    <select id="securityQuestion" name="securityQuestion">
+                        <option value="">— No question, I'll ask a librarian —</option>
+                        <option th:each="q : ${questions}" th:value="${q}" th:text="${q}"
+                                th:selected="${q == securityQuestion}">What is your favourite book?</option>
+                    </select>
+                    <span class="hint">You answer it to set a new password. Your email also works as a login name.</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="securityAnswer">Your answer</label>
+                    <input type="text" id="securityAnswer" name="securityAnswer"
+                           th:value="${securityAnswer}" placeholder="e.g. Middlemarch" maxlength="120">
+                    <p class="field-error" th:if="${securityAnswerError}" th:text="${securityAnswerError}"></p>
+                </div>
             </div>
 
             <div class="form-actions">

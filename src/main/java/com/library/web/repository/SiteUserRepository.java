@@ -14,6 +14,9 @@ public interface SiteUserRepository extends JpaRepository<SiteUser, Long> {
 
     Optional<SiteUser> findByUsername(String username);
 
+    /** Lets a reader sign in with their email address instead of their username. */
+    Optional<SiteUser> findByEmail(String email);
+
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);

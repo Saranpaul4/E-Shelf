@@ -50,6 +50,19 @@ public class SiteUser {
     /** Set when the account is created, so the profile can say "reader since". */
     private LocalDateTime joinedAt = LocalDateTime.now();
 
+    /**
+     * One of the fixed questions chosen at sign-up. It is the only way this app can prove
+     * the person at the "Forgot password" form owns the account, because there is no email
+     * service to send a reset link through. Left null on accounts created before the
+     * feature existed, and those readers are pointed at a librarian instead.
+     */
+    @Column(length = 120)
+    private String securityQuestion;
+
+    /** Stored in plain lower case: answers are compared loosely, not hashed like passwords. */
+    @Column(length = 120)
+    private String securityAnswer;
+
     public SiteUser() {
     }
 
@@ -151,6 +164,28 @@ public class SiteUser {
 
     public void setJoinedAt(LocalDateTime joinedAt) {
         this.joinedAt = joinedAt;
+    }
+
+    public String getSecurityQuestion() {
+        return securityQuestion;
+    }
+
+    public void setSecurityQuestion(String securityQuestion) {
+        this.securityQuestion = securityQuestion;
+    }
+
+    public String getSecurityAnswer() {
+        return securityAnswer;
+    }
+
+    public void setSecurityAnswer(String securityAnswer) {
+        this.securityAnswer = securityAnswer;
+    }
+
+    /** True when this account can reset its own password. */
+    public boolean isSecurityQuestionSet() {
+        return securityQuestion != null && !securityQuestion.isBlank()
+                && securityAnswer != null && !securityAnswer.isBlank();
     }
 
     /** Whatever the page should show as this person's picture, or null for the letter tile. */

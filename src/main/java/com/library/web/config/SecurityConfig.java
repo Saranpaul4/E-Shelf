@@ -1,5 +1,8 @@
 package com.library.web.config;
 
+import java.util.Optional;
+
+import com.library.web.model.SiteUser;
 import com.library.web.repository.SiteUserRepository;
 import com.library.web.service.PresenceService;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +23,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/uploads/**", "/favicon.svg",
-                                "/login", "/signup", "/").permitAll()
+                                "/login", "/signup", "/forgot-password", "/forgot-password/reset", "/").permitAll()
                         .requestMatchers("/h2-console/**", "/admin/**").hasRole("ADMIN")
                         .requestMatchers("/shop/**").hasRole("USER")
                         .anyRequest().authenticated())
@@ -43,14 +46,29 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Spring calls this with whatever was typed in the login form's username box. Readers
+     * often remember their email better than their handle, so an unknown username gets one
+     * more try as an email address. The account's real username is what goes into the
+     * authenticated principal either way, so the rest of the app never has to care which
+     * of the two was typed.
+     */
     @Bean
     UserDetailsService users(SiteUserRepository repository) {
-        return username -> repository.findByUsername(username)
-                .map(user -> User.withUsername(user.getUsername())
+        return typed -> lookup(repository, typed).map(user -> User.withUsername(user.getUsername())
                         .password(user.getPassword())
                         .roles(user.getRole())
                         .build())
-                .orElseThrow(() -> new UsernameNotFoundException("No user: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("No user: " + typed));
+    }
+
+    private static Optional<SiteUser> lookup(SiteUserRepository repository, String typed) {
+        if (typed == null || typed.isBlank()) {
+            return Optional.empty();
+        }
+        String name = typed.trim();
+        Optional<SiteUser> byUsername = repository.findByUsername(name);
+        return byUsername.isPresent() ? byUsername : repository.findByEmail(name.toLowerCase());
     }
 
     @Bean

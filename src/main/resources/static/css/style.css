@@ -2217,13 +2217,23 @@ tbody tr:hover { background: #f7f9ff; }
     grid-column: 1 / -1;
 }
 
-/* ---------- Buy confirm popup ---------- */
+/* The forgotten-password page shows the reader's own question above the answer box. */
+.reset-question {
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--gold);
+    border-radius: 0 10px 10px 0;
+    background: var(--blue-soft);
+    font-weight: 600;
+}
 
-body.buy-modal-open {
+/* ---------- Buy / Rent confirm popup ---------- */
+
+body.cart-modal-open {
     overflow: hidden;
 }
 
-.buy-modal {
+.cart-modal {
     position: fixed;
     inset: 0;
     z-index: 1000;
@@ -2233,17 +2243,17 @@ body.buy-modal-open {
     padding: 20px;
 }
 
-.buy-modal[hidden] {
+.cart-modal[hidden] {
     display: none;
 }
 
-.buy-modal-backdrop {
+.cart-modal-backdrop {
     position: absolute;
     inset: 0;
     background: rgba(10, 12, 20, 0.62);
 }
 
-.buy-modal-card {
+.cart-modal-card {
     position: relative;
     width: min(94vw, 640px);
     max-height: 88vh;
@@ -2258,19 +2268,19 @@ body.buy-modal-open {
     box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
 }
 
-.buy-modal-head {
+.cart-modal-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
 }
 
-.buy-modal-head h4 {
+.cart-modal-head h4 {
     margin: 0;
     font-size: 1.05rem;
 }
 
-.buy-modal-x {
+.cart-modal-x {
     border: none;
     background: none;
     color: var(--ink-soft);
@@ -2279,14 +2289,14 @@ body.buy-modal-open {
     cursor: pointer;
 }
 
-.buy-modal-body {
+.cart-modal-body {
     display: grid;
     grid-template-columns: 150px 1fr;
     gap: 18px;
     align-items: start;
 }
 
-.buy-modal-cover {
+.cart-modal-cover {
     position: relative;
     min-height: 200px;
     display: flex;
@@ -2297,7 +2307,7 @@ body.buy-modal-open {
     background: var(--blue-soft);
 }
 
-.buy-modal-cover .cover-image {
+.cart-modal-cover .cover-image {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -2305,34 +2315,34 @@ body.buy-modal-open {
     object-fit: cover;
 }
 
-.buy-modal-name {
+.cart-modal-name {
     margin: 0 0 4px;
     font-size: 1.1rem;
     font-weight: 700;
 }
 
-.buy-modal-meta,
-.buy-modal-tags {
+.cart-modal-meta,
+.cart-modal-tags {
     margin: 0 0 4px;
     color: var(--ink-soft);
     font-size: 0.86rem;
 }
 
-.buy-modal-prices {
+.cart-modal-prices {
     margin: 10px 0 0;
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
 }
 
-.buy-modal-blurb {
+.cart-modal-blurb {
     margin-top: 14px;
     padding: 12px 14px;
     border-radius: 10px;
     background: var(--blue-soft);
 }
 
-.buy-modal-blurb h5 {
+.cart-modal-blurb h5 {
     margin: 0 0 6px;
     font-size: 0.8rem;
     letter-spacing: 0.05em;
@@ -2340,18 +2350,28 @@ body.buy-modal-open {
     color: var(--ink-soft);
 }
 
-.buy-modal-blurb p {
+.cart-modal-blurb p {
     margin: 0;
     line-height: 1.6;
 }
 
-.buy-modal-stock {
+.cart-modal-terms {
+    margin: 12px 0 0;
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+}
+
+.cart-modal-terms[hidden] {
+    display: none;
+}
+
+.cart-modal-stock {
     margin: 12px 0 0;
     font-size: 0.85rem;
     color: var(--ink-soft);
 }
 
-.buy-modal-actions {
+.cart-modal-actions {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
@@ -2360,11 +2380,11 @@ body.buy-modal-open {
 }
 
 @media (max-width: 640px) {
-    .buy-modal-body {
+    .cart-modal-body {
         grid-template-columns: 1fr;
     }
 
-    .buy-modal-cover {
+    .cart-modal-cover {
         min-height: 160px;
     }
 }
