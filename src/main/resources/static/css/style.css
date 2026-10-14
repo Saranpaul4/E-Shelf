@@ -1631,42 +1631,6 @@ tbody tr:hover { background: #f7f9ff; }
     max-width: 210px;
 }
 
-/* ---- Demo account list on the login page ------------------------------- */
-
-.demo-accounts {
-    margin-top: 20px;
-    padding: 14px 16px;
-    border: 1px dashed var(--line);
-    border-radius: 12px;
-    background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.demo-title {
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    color: var(--ink-faint);
-}
-
-.demo-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-}
-
-.demo-row code {
-    font-family: "Consolas", monospace;
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 2px 8px;
-}
-
 /* ---- Profile page ----------------------------------------------------- */
 
 .profile-head {
