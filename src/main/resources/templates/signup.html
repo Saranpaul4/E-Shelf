@@ -81,6 +81,13 @@
             </div>
         </form>
 
+        <th:block th:if="${googleSignUp} == true">
+            <p class="auth-split"><span>or</span></p>
+            <p class="form-actions form-actions-center">
+                <a class="btn btn-google" th:href="@{/oauth2/authorization/google-signup}">Create account with Google</a>
+            </p>
+        </th:block>
+
         <p class="auth-hint">Already have an account? <a th:href="@{/login}">Log in instead</a></p>
     </section>
 </main>

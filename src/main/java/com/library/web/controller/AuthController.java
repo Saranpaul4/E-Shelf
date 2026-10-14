@@ -47,6 +47,7 @@ public class AuthController {
                         @RequestParam(value = "logout", required = false) String logout,
                         @RequestParam(value = "registered", required = false) String registered,
                         @RequestParam(value = "reset", required = false) String reset,
+                        @RequestParam(value = "google", required = false) String google,
                         Model model) {
         if (error != null) {
             model.addAttribute("loginError", true);
@@ -60,6 +61,10 @@ public class AuthController {
         if (reset != null) {
             model.addAttribute("passwordReset", true);
         }
+        // A Google address this shop has never met, turned away at the login door.
+        if ("unregistered".equals(google)) {
+            model.addAttribute("googleNewReader", true);
+        }
         // Only true on a machine that was given Google credentials, so the page can hide
         // the button instead of showing one that leads to a dead end.
         model.addAttribute("googleSignIn",
@@ -70,6 +75,8 @@ public class AuthController {
     @GetMapping("/signup")
     public String signupForm(Model model) {
         model.addAttribute("questions", SECURITY_QUESTIONS);
+        model.addAttribute("googleSignUp",
+                clientRegistrations.findByRegistrationId(SecurityConfig.GOOGLE_SIGNUP) != null);
         return "signup";
     }
 

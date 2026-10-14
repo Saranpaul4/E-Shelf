@@ -31,6 +31,10 @@
         <div class="alert alert-ok" th:if="${passwordReset}">
             Password changed — log in with your new one below.
         </div>
+        <div class="alert alert-error" th:if="${googleNewReader}">
+            E-Shelf has no account for that Google address. Use
+            <a th:href="@{/signup}">Create account with Google</a> on the sign-up page to open one.
+        </div>
 
         <form th:action="@{/login}" method="post">
             <div class="form-grid">

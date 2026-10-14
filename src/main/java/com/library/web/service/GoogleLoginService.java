@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.library.web.config.SecurityConfig;
 import com.library.web.model.SiteUser;
 import com.library.web.repository.SiteUserRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -23,10 +25,10 @@ import org.springframework.stereotype.Service;
  * Turns a Google account into an account of this shop.
  *
  * <p>Google proves who someone is; it says nothing about whether they may see the back
- * office. So this step looks the email up in our own table: an existing reader or librarian
- * signs straight in as themselves, and a brand new email becomes a shop customer, exactly as
- * public sign-up would make one. The role always comes from {@link SiteUser}, never from the
- * identity provider.</p>
+ * office. So this step looks the email up in our own table and the role always comes from
+ * {@link SiteUser}, never from the identity provider. What it does with an email it has never
+ * seen depends on which door the person came through: the Sign up door adopts them as a new
+ * customer, the Log in door sends them back to choose a password or sign up.</p>
  *
  * <p>It extends {@code OidcUserService} rather than the plain "OAuth2" one because our scopes
  * include {@code openid}, and Spring Security sends every such login down the OIDC path. Ask
@@ -35,6 +37,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class GoogleLoginService extends OidcUserService {
+
+    /**
+     * Marks the one refusal this app raises itself, so the failure handler can tell it from a
+     * genuine Google problem and show a helpful page rather than "wrong password".
+     */
+    public static final String NO_ACCOUNT_HERE = "no_e_shelf_account";
 
     private final SiteUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -59,6 +67,13 @@ public class GoogleLoginService extends OidcUserService {
         String displayName = claim(googleUser, "name");
         SiteUser account = userRepository.findByEmail(email).orElse(null);
         if (account == null) {
+            if (!SecurityConfig.GOOGLE_SIGNUP.equals(userRequest.getClientRegistration().getRegistrationId())) {
+                // They asked to log in, and there is nothing here to log in to. Making an
+                // account anyway would quietly invent a shelf for a stranger.
+                throw new OAuth2AuthenticationException(new OAuth2Error(NO_ACCOUNT_HERE,
+                        "No E-Shelf account uses " + email, null),
+                        "New Google reader at the login door");
+            }
             account = userRepository.save(register(email, displayName));
         }
         return new ShopAccount(googleUser, account);
